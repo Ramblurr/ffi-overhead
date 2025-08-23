@@ -96,7 +96,7 @@ let run_default limit =
     x := plusone_int_untagged !x
   done;
   let finish_at = current_timestamp () in
-  prerr_endline (string_of_int (finish_at - start_at))
+  print_endline (string_of_int (finish_at - start_at))
 
 let () =
   let limit = int_of_string Sys.argv.(1) in
