@@ -70,6 +70,7 @@ BENCHMARKS = {
     "clj/coffi": {
         "cwd": "clojure_coffi",
         "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
+        "tty_detach": True,
     },
 }
 
@@ -129,7 +130,7 @@ def calculate_column_widths(results_dict, stats_dict, has_comparison):
     }
 
     if has_comparison:
-        widths["comparison"] = 15
+        widths["comparison"] = 20
 
     # Adjust timing columns based on actual values
     if stats_dict:
@@ -220,11 +221,12 @@ def run_benchmark(benchmark_config, count, runs=2, name=""):
     errors = []
     cwd = benchmark_config.get("cwd")
     cmd = benchmark_config["exec"]
+    tty_detach = benchmark_config.get("tty_detach", False)
 
     for _ in range(runs):
         try:
-            # For clj/coffi, completely detach from terminal to prevent TTY output
-            if name == "clj/coffi":
+            # Check if we need to detach from terminal to prevent TTY output
+            if tty_detach:
                 result = subprocess.run(
                     cmd + [str(count)],
                     stdout=subprocess.PIPE,
@@ -252,9 +254,7 @@ def run_benchmark(benchmark_config, count, runs=2, name=""):
             errors.append(error_msg)
             continue
         except ValueError as e:
-            error_msg = (
-                f"Invalid output - expected integer, got: '{result.stdout.strip()}'"
-            )
+            error_msg = f"Invalid output - expected integer"
             errors.append(error_msg)
             continue
         except FileNotFoundError:
@@ -410,7 +410,7 @@ def run_all_benchmarks(
 
     # Run each benchmark
     for name, benchmark_config in benchmarks_to_run:
-        if verbose:
+        if verbose and widths:
             # Show running indicator in table format with "..." in timing columns
             running_cols = [name, "...", "", "", ""]
             running_widths = [
@@ -442,13 +442,13 @@ def run_all_benchmarks(
             stats[name] = calculate_stats(times)
             baseline_time = update_baseline_time(baseline, baseline_time, name, stats)
 
-            if verbose:
+            if verbose and widths:
                 print_success_row(name, stats[name], widths, baseline, baseline_time)
         else:
             # Process failed benchmark
             if errors:
                 all_errors[name] = errors
-            if verbose:
+            if verbose and widths:
                 print_error_row(name, widths, baseline)
 
     # Finish table display
