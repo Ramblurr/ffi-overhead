@@ -3,35 +3,75 @@ ffi-overhead
 
 comparing the c ffi overhead on various programming languages
 
+# Results (2025-08)
+
+> [!WARNING]  
+> Disclaimer: I have no idea what I am doing. Do not believe this.
+
+The benchmark results can be visualized using the automated benchmarking harness:
+
+![FFI Overhead Benchmark Results for 2025-08](data/2025-08/chart.png)
+
+*Chart shows average execution times across multiple runs. Lower values are better.*
+
+Raw data: [data/2025-08/raw_data.csv](./data/2025-08/data.csv)
+
+Tool chain versions used: [data/2025-08/toolchain.txt](./data/2025-08/toolchain.txt)
+
+The native function is, ran `count` times
+
+``` c
+int plusone(int x)
+{
+    return x + 1;
+}
+```
+
+```
+❯ ./bench.py --verbose --csv data/2025-08/data.csv --chart ./data/2025-08/chart.png --baseline c
+Benchmark Results (2 runs, count=500,000,000)
+───────────────────────────────────────────────────────────────────────────────
+│ Benchmark     │     Mean │      Min │      Max │  Std Dev │     vs Baseline │
+───────────────────────────────────────────────────────────────────────────────
+│ julia         │   482 ms │   478 ms │   485 ms │   4.9 ms │    1.81x faster │
+│ zig           │   487 ms │   483 ms │   491 ms │   5.7 ms │    1.79x faster │
+│ v             │   584 ms │   581 ms │   587 ms │   4.2 ms │    1.49x faster │
+│ rust          │   772 ms │   770 ms │   773 ms │   2.1 ms │    1.13x faster │
+│ luajit        │   774 ms │   768 ms │   780 ms │   8.5 ms │    1.13x faster │
+│ d             │   869 ms │   864 ms │   874 ms │   7.1 ms │    1.00x faster │
+│ ocamlopt      │   860 ms │   851 ms │   868 ms │  12.0 ms │    1.02x faster │
+│ cpp           │   864 ms │   864 ms │   865 ms │   0.7 ms │    1.01x faster │
+│ d ldc2        │   862 ms │   861 ms │   862 ms │   0.7 ms │    1.01x faster │
+│ haskell       │   860 ms │   857 ms │   863 ms │   4.2 ms │    1.01x faster │
+│ c             │   872 ms │   870 ms │   875 ms │   3.5 ms │ 1.00x (baseline)│
+│ CL/SBCL       │  1148 ms │  1138 ms │  1159 ms │  14.8 ms │    1.32x slower │
+│ java21/panama │  1321 ms │  1318 ms │  1324 ms │   4.2 ms │    1.51x slower │
+│ java24/panama │  1453 ms │  1442 ms │  1464 ms │  15.6 ms │    1.67x slower │
+│ java8/jni     │  1628 ms │  1439 ms │  1818 ms │ 268.0 ms │    1.87x slower │
+│ java21/jni    │  1708 ms │  1674 ms │  1742 ms │  48.1 ms │    1.96x slower │
+│ java24/jni    │  1658 ms │  1654 ms │  1663 ms │   6.4 ms │    1.90x slower │
+│ clj/coffi     │  2743 ms │  2660 ms │  2826 ms │ 117.4 ms │    3.14x slower │
+│ ocamlc        │  3294 ms │  2684 ms │  3904 ms │ 862.7 ms │    3.78x slower │
+│ node          │  4066 ms │  4039 ms │  4093 ms │  38.2 ms │    4.66x slower │
+│ elixir        │  8264 ms │  8193 ms │  8335 ms │ 100.4 ms │    9.47x slower │
+│ go            │ 12437 ms │ 12206 ms │ 12668 ms │ 326.7 ms │   14.25x slower │
+│ csharp mono   │ 18480 ms │ 18391 ms │ 18569 ms │ 125.9 ms │   21.18x slower │
+│ janet         │ 25269 ms │ 24542 ms │ 25996 ms │ 1028.1 ms│   28.96x slower │
+───────────────────────────────────────────────────────────────────────────────
+```
+
+Ran on a AMD Ryzen 9 7950X3D 16-Core cpu
+
+
+# Usage
+
 Requirements:
-- gcc
-- tup
-- zig
-- nim
-- v
-- java7
-- java8
-- go
-- rust
-- d (dmd and ldc2)
-- haskell (ghc)
-- ocaml
-- csharp (mono)
-- luajit
-- julia
-- node
-- dart
-- wren
-- elixir
 
-## Nix Development Environment
+ - nix w/ flakes enabled
 
-This project includes a Nix flake for reproducible development environments. To use it:
+This project includes a Nix flake for reproducible development environments.
 
-### Prerequisites
-- Install Nix with flakes enabled
-
-### Usage
+## Usage
 ```sh
 # Enter the development shell
 nix develop
@@ -74,20 +114,6 @@ Current environment (Nix) (2025-08):
 - wren not available (not in nixpkgs)
 ```
 
-### Initialize
-```sh
-nix develop --command -- tup init
-```
-
-### Compile
-```sh
-nix develop --command -- ./compile-all.sh
-```
-
-Compile opts:
-- -O2 (gcc - applies to c/jni/nim)
-- -C opt-level=2 (rust)
-
 ### Run
 
 ```sh
@@ -99,67 +125,4 @@ nix develop --command -- python3 bench.py --verbose --runs 5 --count 1000000
 
 # Specify output files
 nix develop --command -- python3 bench.py --verbose --csv my_results.csv --chart my_chart.png
-```
-
-The harness will:
-- Run benchmarks multiple times and average the results
-- Generate a CSV file with detailed timing data
-- Create a bar chart visualization (PNG format)
-- Print a summary of results sorted by performance
-
-Measurement:
-- call the c function "plusone" x number of times and print out the elapsed time in millis.
- ```c
-int x = 0;
-while (x < count) x = plusone(x);
- ```
-
-
-Default run is with 2 samples
-
-## Results (500M calls)
-
-The benchmark results can be visualized using the automated benchmarking harness:
-
-![FFI Overhead Benchmark Results for 2025-08](data/2025-08/chart.png)
-
-*Chart shows average execution times across multiple runs. Lower values indicate better performance.*
-
-Raw data: [data/2025-08/raw_data.csv](./data/2025-08/data.csv)
-
-Tool chain versions used: [data/2025-08/toolchain.txt](./data/2025-08/toolchain.txt)
-
-
-```
-❯ ./bench.py --verbose --csv data/2025-08/data.csv --chart ./data/2025-08/chart.png --baseline c
-
-Benchmark Results (2 runs, count=500,000,000)
-───────────────────────────────────────────────────────────────────────────────
-│ Benchmark     │     Mean │      Min │      Max │  Std Dev │     vs Baseline │
-───────────────────────────────────────────────────────────────────────────────
-│ c             │   892 ms │   863 ms │   920 ms │  40.3 ms │ 1.00x (baseline) │
-│ luajit        │   753 ms │   752 ms │   754 ms │   1.4 ms │    1.18x faster │
-│ cpp           │   860 ms │   848 ms │   872 ms │  17.0 ms │    1.04x faster │
-│ CL/SBCL       │  1148 ms │  1144 ms │  1151 ms │   4.9 ms │    1.29x slower │
-│ zig           │   483 ms │   483 ms │   483 ms │   0.0 ms │    1.85x faster │
-│ v             │     0 ms │     0 ms │     0 ms │   0.0 ms │ N/A (mean ~0ms) │
-│ rust          │   761 ms │   760 ms │   762 ms │   1.4 ms │    1.17x faster │
-│ d             │   852 ms │   847 ms │   857 ms │   7.1 ms │    1.05x faster │
-│ d ldc2        │   860 ms │   857 ms │   863 ms │   4.2 ms │    1.04x faster │
-│ haskell       │     0 ms │     0 ms │     0 ms │   0.0 ms │ N/A (mean ~0ms) │
-│ ocamlopt      │   878 ms │   874 ms │   882 ms │   5.7 ms │    1.02x faster │
-│ ocamlc        │  2596 ms │  2591 ms │  2602 ms │   7.8 ms │    2.91x slower │
-│ csharp mono   │ 18222 ms │ 18218 ms │ 18226 ms │   5.7 ms │   20.44x slower │
-│ java8/jni     │  1456 ms │  1438 ms │  1474 ms │  25.5 ms │    1.63x slower │
-│ java21/jni    │  1648 ms │  1646 ms │  1651 ms │   3.5 ms │    1.85x slower │
-│ java24/jni    │  1670 ms │  1665 ms │  1674 ms │   6.4 ms │    1.87x slower │
-│ java21/panama │  1328 ms │  1297 ms │  1360 ms │  44.5 ms │    1.49x slower │
-│ java24/panama │  1395 ms │  1372 ms │  1418 ms │  32.5 ms │    1.56x slower │
-│ node          │  3894 ms │  3867 ms │  3920 ms │  37.5 ms │    4.37x slower │
-│ go            │ 12222 ms │ 12175 ms │ 12268 ms │  65.8 ms │   13.71x slower │
-│ elixir        │  8168 ms │  8136 ms │  8199 ms │  44.5 ms │    9.16x slower │
-│ julia         │   476 ms │   475 ms │   476 ms │   0.7 ms │    1.87x faster │
-│ janet         │ 24342 ms │ 24335 ms │ 24348 ms │   9.2 ms │   27.30x slower │
-│ clj/coffi     │  2606 ms │  2581 ms │  2631 ms │  35.4 ms │    2.92x slower │
-───────────────────────────────────────────────────────────────────────────────
 ```
