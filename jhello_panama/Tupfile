@@ -1,0 +1,11 @@
+include_rules
+
+# =====================================
+
+# Use vendor JDKs from flake.nix shellHook
+JDK21_HOME = $(PROJECT_DIR)/vendor/openjdk21
+JDK24_HOME = $(PROJECT_DIR)/vendor/openjdk24
+
+# Panama FFI requires Java 21+ (preview in 21, standard in 22+)
+: Hello.java |> $(JDK21_HOME)/bin/javac --enable-preview --release 21 -d .. %f |> %B.class
+: Hello.java |> $(JDK24_HOME)/bin/javac -d ../jhello_panama24 %f |> ../jhello_panama24/jhello_panama/%B.class
