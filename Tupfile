@@ -28,7 +28,7 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 : hello.cs | $(DEPS) |> csc /out:%o %f |> csharp_hello.exe
 
 # v
-: hello.v | $(DEPS) |> v -prod %f -o %o |> v_hello
+: hello.v | $(DEPS) |> v %f -o %o |> v_hello
 
 # go
 : hello.go | $(DEPS) |> go build -o %o %f |> go_hello

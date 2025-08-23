@@ -14,9 +14,11 @@ run count = do
   let
     go x | x < count = go (plusone x)
          | otherwise = x
-  let result = go 0 -- to force evaluation
-  end <- current_timestamp
-  print (end - start)
+  let result = go 0
+  -- Force evaluation using seq (standard anti-optimization)
+  result `seq` do
+    end <- current_timestamp
+    print (end - start)
 
 main :: IO ()
 main = do

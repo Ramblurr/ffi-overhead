@@ -15,7 +15,14 @@ fn run(count int) i64 {
     x = C.plusone(x)
   }
 
-  return C.current_timestamp() - start
+  end := C.current_timestamp()
+
+  // Prevent optimization using a side effect
+  if x == -1 { // Will never be true but compiler can't prove it
+    println('impossible')
+  }
+
+  return end - start
 }
 
 fn main() {
