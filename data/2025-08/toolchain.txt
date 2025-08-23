@@ -1,0 +1,28 @@
+Current environment:
+```
+- x86_64 Linux 6.12.41
+- gcc/g++ 14.3.0
+- tup 0.8
+- zig 0.14.1
+- nim 2.2.4
+- v V 0.4.11 
+- java8 1.8.0_462
+- java21 21.0.7
+- java24 24.0.2
+- go 1.24.5
+- rust 1.88.0 (6b00bc388 2025-06-23) (built from a source tarball)
+- dmd D
+- ldc2 compiler
+- ghc 9.8.4
+- ocaml 5.3.0
+- mono 6.14.1
+- sbcl 2.5.5
+# dynamic languages
+- luajit 2.1.1741730670
+- julia 1.11.6
+- node 22.17.0
+- dart 3.8.2 (disabled - deprecated native extensions)
+- nim 2.2.4 (disabled - rpath issues)
+- wren not available (not in nixpkgs)
+- elixir 1.18.4 (Erlang/OTP 27)
+```
