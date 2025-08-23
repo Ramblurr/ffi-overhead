@@ -62,6 +62,10 @@ Benchmark Results (2 runs, count=500,000,000)
 
 Ran on a AMD Ryzen 9 7950X3D 16-Core cpu
 
+I disabled dart, wren, and nim because I couldn't get them working after
+banging on it for about an hour, and (sorry not sorry) I don't care so much to
+fix them.
+
 
 # Usage
 
@@ -89,7 +93,6 @@ Current environment (Nix) (2025-08):
 - gcc/g++ 14.3.0
 - tup 0.8
 - zig 0.14.1
-- nim 2.2.4
 - v V 0.4.11
 - java8 1.8.0_462
 - java21 21.0.7
