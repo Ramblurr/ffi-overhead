@@ -1,6 +1,4 @@
-#!/bin/sh
-
-# Script to report current environment versions like in the README
+#!/usr/bin/env bash
 
 echo "Current environment:"
 echo "\`\`\`"
@@ -66,7 +64,6 @@ if [ -n "$java24_version" ]; then
 else
     echo "- java24 not found"
 fi
-
 
 go_version=$(go version 2>/dev/null | cut -d' ' -f3 | sed 's/go//')
 if [ -n "$go_version" ]; then
@@ -171,6 +168,18 @@ if [ -n "$elixir_version" ] && [ -n "$erlang_version" ]; then
     echo "- elixir $elixir_version (Erlang/OTP $erlang_version)"
 else
     echo "- elixir not found"
+fi
+
+janet_version=$(janet --version 2>/dev/null)
+if [ -n "$janet_version" ]; then
+    echo "- janet $janet_version"
+else
+    echo "- janet not found"
+fi
+clojure_version=$(clj -M -e '(clojure-version)' 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+if [ -n "$clojure_version" ]; then
+    coffi_version=$(cat clojure_coffi/deps.edn | jet -t ':deps' 2>/dev/null | jet -t 'vals first :mvn/version' 2>/dev/null | tr -d '"')
+    echo "- clojure $clojure_version (coffi $coffi_version)"
 fi
 
 echo "\`\`\`"

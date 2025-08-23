@@ -49,7 +49,8 @@ Current environment (Nix) (2025-08):
 - gcc/g++ 14.3.0
 - tup 0.8
 - zig 0.14.1
-- v V 0.4.11 
+- nim 2.2.4
+- v V 0.4.11
 - java8 1.8.0_462
 - java21 21.0.7
 - java24 24.0.2
@@ -66,6 +67,8 @@ Current environment (Nix) (2025-08):
 - julia 1.11.6
 - node 22.17.0
 - elixir 1.18.4 (Erlang/OTP 27)
+- janet 1.38.0-release
+- clojure 1.12.1 (coffi 1.0.615)
 - nim 2.2.4 (disabled - rpath issues)
 - dart 3.8.2 (disabled - deprecated native extensions)
 - wren not available (not in nixpkgs)

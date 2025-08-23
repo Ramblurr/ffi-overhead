@@ -25,4 +25,6 @@ Current environment:
 - nim 2.2.4 (disabled - rpath issues)
 - wren not available (not in nixpkgs)
 - elixir 1.18.4 (Erlang/OTP 27)
+- janet 1.38.0-release
+- clojure 1.12.1 (coffi 1.0.615)
 ```

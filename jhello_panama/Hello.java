@@ -14,7 +14,8 @@ public final class Hello
     static {
         try {
             // Load the shared library
-            System.loadLibrary("newplus");
+            java.io.File currentDir = new java.io.File(".").getCanonicalFile();
+            System.load(currentDir.getPath() + "/newplus/libnewplus.so");
             symbolLookup = SymbolLookup.loaderLookup();
             
             // Define function signatures

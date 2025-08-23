@@ -7,88 +7,106 @@ import statistics
 import sys
 from pathlib import Path
 
-BENCHMARKS = [
-    ("luajit", ["luajit", "hello.lua"]),
-    ("c", ["./c_hello"]),
-    ("cpp", ["./cpp_hello"]),
-    ("Common Lisp via SBCL", ["sbcl", "--script", "hello.lisp"]),
-    ("zig", ["./zig-out/zig_hello/zig_hello"]),
-    ("v", ["./v_hello"]),
-    ("rust", ["./rust_hello"]),
-    ("d", ["./d_hello"]),
-    ("d ldc2", ["./d_ldc2_hello"]),
-    ("haskell", ["./ghc_hello"]),
-    ("ocamlopt", ["./ocaml/test.nat"]),
-    ("ocamlc", ["./ocaml/test.bc"]),
-    ("csharp mono", ["mono", "./csharp_hello.exe"]),
-    ("java8", ["./vendor/openjdk8/bin/java", "-cp", ".", "jhello.Hello"]),
-    (
-        "java21",
-        [
+BENCHMARKS = {
+    "luajit": {"exec": ["luajit", "hello.lua"]},
+    "c": {"exec": ["./c_hello"]},
+    "cpp": {"exec": ["./cpp_hello"]},
+    "CL/SBCL": {"exec": ["sbcl", "--script", "hello.lisp"]},
+    "zig": {"exec": ["./zig-out/zig_hello/zig_hello"]},
+    "v": {"exec": ["./v_hello"]},
+    "rust": {"exec": ["./rust_hello"]},
+    "d": {"exec": ["./d_hello"]},
+    "d ldc2": {"exec": ["./d_ldc2_hello"]},
+    "haskell": {"exec": ["./ghc_hello"]},
+    "ocamlopt": {"exec": ["./ocaml/test.nat"]},
+    "ocamlc": {"exec": ["./ocaml/test.bc"]},
+    "csharp mono": {"exec": ["mono", "./csharp_hello.exe"]},
+    "java8/jni": {"exec": ["./vendor/openjdk8/bin/java", "-cp", ".", "jhello.Hello"]},
+    "java21/jni": {
+        "exec": [
             "./vendor/openjdk21/bin/java",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
             "jhello21",
             "jhello.Hello",
-        ],
-    ),
-    (
-        "java24",
-        [
+        ]
+    },
+    "java24/jni": {
+        "exec": [
             "./vendor/openjdk24/bin/java",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
             "jhello24",
             "jhello.Hello",
-        ],
-    ),
-    (
-        "java21 panama",
-        [
+        ]
+    },
+    "java21/panama": {
+        "exec": [
             "./vendor/openjdk21/bin/java",
             "--enable-preview",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
             ".",
             "jhello_panama.Hello",
-        ],
-    ),
-    (
-        "java24 panama",
-        [
+        ]
+    },
+    "java24/panama": {
+        "exec": [
             "./vendor/openjdk24/bin/java",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
             "jhello_panama24",
             "jhello_panama.Hello",
-        ],
-    ),
-    ("node", ["node", "hello.js"]),
-    ("go", ["./go_hello"]),
-    ("elixir", ["elixir", "-r", "hello.ex", "-e", "S.start"]),
-    ("julia", ["julia", "hello.jl"]),
-]
+        ]
+    },
+    "node": {"exec": ["node", "hello.js"]},
+    "go": {"exec": ["./go_hello"]},
+    "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
+    "julia": {"exec": ["julia", "hello.jl"]},
+    "janet": {"exec": ["janet", "hello.janet"]},
+    # this is measuring jvm startup time too, so it's not very fair
+    # "clojure/coffi": {
+    #    "cwd": "clojure_coffi",
+    #    "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
+    # },
+}
 
 
-def run_benchmark(cmd, count, runs=2):
+def run_benchmark(benchmark_config, count, runs=2, name=""):
     times = []
+    cwd = benchmark_config.get("cwd")
+    cmd = benchmark_config["exec"]
+
     for _ in range(runs):
         try:
             result = subprocess.run(
-                cmd + [str(count)], capture_output=True, text=True, check=True
+                cmd + [str(count)], capture_output=True, text=True, check=True, cwd=cwd
             )
             time = int(result.stdout.strip())
-            if time > 0:
-                times.append(time)
-        except (subprocess.CalledProcessError, ValueError, FileNotFoundError):
+            times.append(time)
+        except subprocess.CalledProcessError as e:
+            print(f"ERROR {name}: Command failed with exit code {e.returncode}")
+            print(f"  Command: {' '.join(cmd)}")
+            print(f"  stderr: {e.stderr.strip()}")
+            continue
+        except ValueError as e:
+            print(f"ERROR {name}: Invalid output - {e}")
+            print(f"  stdout: {result.stdout.strip()}")
+            continue
+        except FileNotFoundError:
+            print(f"ERROR {name}: Command not found - {cmd[0]}")
             continue
     return times
 
 
-def run_all_benchmarks(count, runs):
+def run_all_benchmarks(count, runs, include=None, exclude=None):
     results = {}
-    for name, cmd in BENCHMARKS:
-        times = run_benchmark(cmd, count, runs)
+    for name, benchmark_config in BENCHMARKS.items():
+        if include and name not in include:
+            continue
+        if exclude and name in exclude:
+            continue
+        times = run_benchmark(benchmark_config, count, runs, name)
         if times:
             results[name] = times
     return results
@@ -121,7 +139,7 @@ def create_chart(averages, filename):
 
     ax.set_xlabel("Programming Languages")
     ax.set_ylabel("Average Time (milliseconds)")
-    ax.set_title("FFI Overhead Benchmark Results")
+    ax.set_title("FFI Overhead Benchmark Results (Lower is Better)")
     ax.set_xticks(range(len(languages)))
     ax.set_xticklabels(languages, rotation=45, ha="right")
 
@@ -146,24 +164,35 @@ def main():
     parser = argparse.ArgumentParser(description="FFI Overhead Benchmarking Harness")
     parser.add_argument("--runs", type=int, default=2)
     parser.add_argument("--count", type=int, default=500000000)
-    parser.add_argument("--csv", default="benchmark_results.csv")
-    parser.add_argument("--chart", default="benchmark_chart.png")
+    parser.add_argument("--csv", default=None)
+    parser.add_argument("--chart", default=None)
+    parser.add_argument(
+        "--include", help="Comma-separated list of languages to include"
+    )
+    parser.add_argument(
+        "--exclude", help="Comma-separated list of languages to exclude"
+    )
 
     args = parser.parse_args()
 
-    results = run_all_benchmarks(args.count, args.runs)
+    include = set(args.include.split(",")) if args.include else None
+    exclude = set(args.exclude.split(",")) if args.exclude else None
+
+    results = run_all_benchmarks(args.count, args.runs, include, exclude)
     if not results:
         sys.exit(1)
 
     averages = calculate_averages(results)
-    save_csv(results, averages, args.csv)
+    if args.csv:
+        save_csv(results, averages, args.csv)
 
     for i, (lang, avg_time) in enumerate(
         sorted(averages.items(), key=lambda x: x[1]), 1
     ):
         print(f"{i:2}. {lang:<25} {avg_time:8.2f} ms")
 
-    create_chart(averages, args.chart)
+    if args.chart:
+        create_chart(averages, args.chart)
 
 
 if __name__ == "__main__":

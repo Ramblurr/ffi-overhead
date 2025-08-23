@@ -30,6 +30,7 @@
             pkgs.gcc
             pkgs.gnumake
             pkgs.tup
+            pkgs.jet
             # Language compilers and runtimes
             pkgs.nim
             pkgs.zig
@@ -53,6 +54,7 @@
             pkgs.erlang
             pkgs.vlang
             pkgs.sbcl
+            pkgs.janet
           ];
           env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libraries;
           # example pkg config path setting

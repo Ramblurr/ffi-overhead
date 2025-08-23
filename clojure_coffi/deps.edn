@@ -1,0 +1,1 @@
+{:paths ["."] :deps {org.suskalo/coffi {:mvn/version "1.0.615"}}}

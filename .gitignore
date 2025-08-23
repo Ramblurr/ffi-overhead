@@ -37,3 +37,6 @@ zig-out
 .zig-cache
 .direnv
 .envrc
+__pycache__
+.cpcache
+.cache

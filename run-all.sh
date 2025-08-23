@@ -120,3 +120,7 @@ echo -e "\njulia:"
 julia hello.jl $@ && \
 julia hello.jl $@
 
+echo -e "\njanet:"
+janet hello.janet $@ && \
+janet hello.janet $@
+
