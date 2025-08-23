@@ -11,7 +11,8 @@ from pathlib import Path
 
 BENCHMARKS = {
     "luajit": {"exec": ["luajit", "hello.lua"]},
-    "c": {"exec": ["./c_hello"]},
+    "c/dynamic": {"exec": ["./c_hello"]},
+    "c/static": {"exec": ["./c_static_hello"]},
     "cpp": {"exec": ["./cpp_hello"]},
     "CL/SBCL": {"exec": ["sbcl", "--script", "hello.lisp"]},
     "zig": {"exec": ["./zig-out/zig_hello/zig_hello"]},
@@ -90,18 +91,18 @@ def format_comparison(mean_time, baseline_time, is_baseline=False):
     """Format comparison string against baseline."""
     if baseline_time is None:
         return "N/A"
-    
+
     # If this is the actual baseline benchmark
     if is_baseline:
         return "1.00x (baseline)"
-    
+
     # Handle zero or near-zero times
     if baseline_time <= 0.001:  # Less than 1 microsecond
         if mean_time <= 0.001:
             return "~equal (both ~0ms)"
         else:
             return "N/A (baseline ~0ms)"
-    
+
     if mean_time <= 0.001:  # Less than 1 microsecond
         return "N/A (mean ~0ms)"
 
@@ -320,7 +321,7 @@ def print_success_row(name, stats, widths, baseline, baseline_time):
     alignments = ["left", "right", "right", "right", "right"]
 
     if baseline is not None:
-        is_baseline = (name == baseline)
+        is_baseline = name == baseline
         comparison = format_comparison(stats["mean"], baseline_time, is_baseline)
         columns.append(comparison)
         column_widths.append(widths["comparison"])
@@ -386,19 +387,19 @@ def run_all_benchmarks(
 
     # Filter benchmarks to run
     benchmarks_to_run = filter_benchmarks(include, exclude)
-    
+
     # If baseline is specified, ensure it runs first
     if baseline and baseline != "first":
         # Find the baseline benchmark and move it to the front
         baseline_benchmark = None
         remaining_benchmarks = []
-        
+
         for name, config in benchmarks_to_run:
             if name == baseline:
                 baseline_benchmark = (name, config)
             else:
                 remaining_benchmarks.append((name, config))
-        
+
         if baseline_benchmark:
             benchmarks_to_run = [baseline_benchmark] + remaining_benchmarks
 

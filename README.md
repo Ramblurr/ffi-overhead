@@ -6,13 +6,13 @@ comparing the c ffi overhead on various programming languages
 # Results (2025-08)
 
 > [!WARNING]  
-> Disclaimer: I have no idea what I am doing. Do not believe this.
+> I have no idea what I am doing. Do not believe this.
 
 The benchmark results can be visualized using the automated benchmarking harness:
 
 ![FFI Overhead Benchmark Results for 2025-08](data/2025-08/chart.png)
 
-*Chart shows average execution times across multiple runs. Lower values are better.*
+*Chart shows average execution times across runs. Lower values are better.*
 
 Raw data: [data/2025-08/raw_data.csv](./data/2025-08/data.csv)
 
@@ -28,35 +28,37 @@ int plusone(int x)
 ```
 
 ```
-❯ ./bench.py --verbose --csv data/2025-08/data.csv --chart ./data/2025-08/chart.png --baseline c
-Benchmark Results (2 runs, count=500,000,000)
+❯ ./bench.py --verbose --csv data/2025-08/data.csv --chart ./data/2025-08/chart.png --baseline c/static --runs 10
+
+Benchmark Results (10 runs, count=500,000,000)
 ───────────────────────────────────────────────────────────────────────────────
 │ Benchmark     │     Mean │      Min │      Max │  Std Dev │     vs Baseline │
 ───────────────────────────────────────────────────────────────────────────────
-│ julia         │   482 ms │   478 ms │   485 ms │   4.9 ms │    1.81x faster │
-│ zig           │   487 ms │   483 ms │   491 ms │   5.7 ms │    1.79x faster │
-│ v             │   584 ms │   581 ms │   587 ms │   4.2 ms │    1.49x faster │
-│ rust          │   772 ms │   770 ms │   773 ms │   2.1 ms │    1.13x faster │
-│ luajit        │   774 ms │   768 ms │   780 ms │   8.5 ms │    1.13x faster │
-│ d             │   869 ms │   864 ms │   874 ms │   7.1 ms │    1.00x faster │
-│ ocamlopt      │   860 ms │   851 ms │   868 ms │  12.0 ms │    1.02x faster │
-│ cpp           │   864 ms │   864 ms │   865 ms │   0.7 ms │    1.01x faster │
-│ d ldc2        │   862 ms │   861 ms │   862 ms │   0.7 ms │    1.01x faster │
-│ haskell       │   860 ms │   857 ms │   863 ms │   4.2 ms │    1.01x faster │
-│ c             │   872 ms │   870 ms │   875 ms │   3.5 ms │ 1.00x (baseline)│
-│ CL/SBCL       │  1148 ms │  1138 ms │  1159 ms │  14.8 ms │    1.32x slower │
-│ java21/panama │  1321 ms │  1318 ms │  1324 ms │   4.2 ms │    1.51x slower │
-│ java24/panama │  1453 ms │  1442 ms │  1464 ms │  15.6 ms │    1.67x slower │
-│ java8/jni     │  1628 ms │  1439 ms │  1818 ms │ 268.0 ms │    1.87x slower │
-│ java21/jni    │  1708 ms │  1674 ms │  1742 ms │  48.1 ms │    1.96x slower │
-│ java24/jni    │  1658 ms │  1654 ms │  1663 ms │   6.4 ms │    1.90x slower │
-│ clj/coffi     │  2743 ms │  2660 ms │  2826 ms │ 117.4 ms │    3.14x slower │
-│ ocamlc        │  3294 ms │  2684 ms │  3904 ms │ 862.7 ms │    3.78x slower │
-│ node          │  4066 ms │  4039 ms │  4093 ms │  38.2 ms │    4.66x slower │
-│ elixir        │  8264 ms │  8193 ms │  8335 ms │ 100.4 ms │    9.47x slower │
-│ go            │ 12437 ms │ 12206 ms │ 12668 ms │ 326.7 ms │   14.25x slower │
-│ csharp mono   │ 18480 ms │ 18391 ms │ 18569 ms │ 125.9 ms │   21.18x slower │
-│ janet         │ 25269 ms │ 24542 ms │ 25996 ms │ 1028.1 ms│   28.96x slower │
+│ c/static      │   486 ms │   474 ms │   495 ms │   5.9 ms │ 1.00x (baseline) │
+│ luajit        │   764 ms │   753 ms │   773 ms │   6.6 ms │    1.57x slower │
+│ c/dynamic     │   871 ms │   853 ms │   954 ms │  31.1 ms │    1.79x slower │
+│ cpp           │   885 ms │   851 ms │   953 ms │  29.3 ms │    1.82x slower │
+│ CL/SBCL       │  1180 ms │  1149 ms │  1199 ms │  15.3 ms │    2.43x slower │
+│ zig           │   485 ms │   478 ms │   493 ms │   5.0 ms │    1.00x faster │
+│ v             │   583 ms │   573 ms │   593 ms │   6.2 ms │    1.20x slower │
+│ rust          │   772 ms │   765 ms │   779 ms │   4.4 ms │    1.59x slower │
+│ d             │   889 ms │   859 ms │   968 ms │  34.5 ms │    1.83x slower │
+│ d ldc2        │   904 ms │   866 ms │   951 ms │  37.7 ms │    1.86x slower │
+│ haskell       │   879 ms │   848 ms │   944 ms │  34.0 ms │    1.81x slower │
+│ ocamlopt      │   868 ms │   848 ms │   884 ms │  11.2 ms │    1.79x slower │
+│ ocamlc        │  2679 ms │  2636 ms │  2817 ms │  54.2 ms │    5.52x slower │
+│ csharp mono   │ 18446 ms │ 18291 ms │ 18542 ms │  84.7 ms │   37.99x slower │
+│ java8/jni     │  1486 ms │  1450 ms │  1638 ms │  55.6 ms │    3.06x slower │
+│ java21/jni    │  1658 ms │  1633 ms │  1692 ms │  15.3 ms │    3.42x slower │
+│ java24/jni    │  1655 ms │  1641 ms │  1669 ms │   9.3 ms │    3.41x slower │
+│ java21/panama │  1301 ms │  1289 ms │  1307 ms │   6.0 ms │    2.68x slower │
+│ java24/panama │  1399 ms │  1368 ms │  1464 ms │  28.6 ms │    2.88x slower │
+│ node          │  3947 ms │  3846 ms │  4278 ms │ 123.1 ms │    8.13x slower │
+│ go            │ 12612 ms │ 12532 ms │ 12711 ms │  65.5 ms │   25.98x slower │
+│ elixir        │  8338 ms │  8222 ms │  8435 ms │  74.2 ms │   17.17x slower │
+│ julia         │   480 ms │   471 ms │   485 ms │   4.8 ms │    1.01x faster │
+│ janet         │ 24720 ms │ 24411 ms │ 24996 ms │ 171.9 ms │   50.92x slower │
+│ clj/coffi     │  2636 ms │  2591 ms │  2803 ms │  62.2 ms │    5.43x slower │
 ───────────────────────────────────────────────────────────────────────────────
 ```
 

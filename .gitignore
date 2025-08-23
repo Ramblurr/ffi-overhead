@@ -40,3 +40,4 @@ zig-out
 __pycache__
 .cpcache
 .cache
+vendor/

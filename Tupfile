@@ -21,6 +21,9 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 # c
 : c/*.o | $(DEPS) |> !cc_exe |> c_hello
 
+# c static (compiles C source directly, no dynamic linking)
+: hello.c newplus/plus.c |> $(CC) -o %o $(OPT_FLAG) %f |> c_static_hello
+
 # cpp
 : cpp/*.o | $(DEPS) |> !cxx_exe |> cpp_hello
 
