@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 [ $# -gt 0 ] || { echo "First arg (0 - 2000000000) is required."; exit 1; }
 
@@ -8,107 +8,115 @@ echo "The results are elapsed time in milliseconds"
 echo "============================================"
 
 if [ "$2" = "scoped" ]; then
-    echo "\nnode scoped:"
+    echo -e "\nnode scoped:"
     node hello.js $@ && \
     node hello.js $@
 
-    echo "\ndart scoped:"
+    echo -e "\ndart scoped:"
     dart hello.dart $@ && \
     dart hello.dart $@
 
     exit 0
 fi
 
-echo "\nluajit:"
+echo -e "\nluajit:"
 luajit hello.lua $@ && \
 luajit hello.lua $@
 
-echo "\nc:"
+echo -e "\nc:"
 ./c_hello $@ && \
 ./c_hello $@
 
-echo "\ncpp:"
+echo -e "\ncpp:"
 ./cpp_hello $@ && \
 ./cpp_hello $@
 
-echo "\nCommon Lisp via SBCL:"
+echo -e "\nCommon Lisp via SBCL:"
 sbcl --script hello.lisp $@ && \
 sbcl --script hello.lisp $@
 
-echo "\nzig:"
+echo -e "\nzig:"
 ./zig-out/zig_hello/zig_hello $@ && \
 ./zig-out/zig_hello/zig_hello $@
 
-echo "\nnim:"
-./nim_hello $@ && \
-./nim_hello $@
+# echo -e "\nnim:"
+# ./nim_hello $@ && \
+# ./nim_hello $@
 
-echo "\nv:"
+echo -e "\nv:"
 ./v_hello $@ && \
 ./v_hello $@
 
-echo "\nrust:"
+echo -e "\nrust:"
 ./rust_hello $@ && \
 ./rust_hello $@
 
-echo "\nd:"
+echo -e "\nd:"
 ./d_hello $@ && \
 ./d_hello $@
 
-echo "\nd ldc2:"
+echo -e "\nd ldc2:"
 ./d_ldc2_hello $@ && \
 ./d_ldc2_hello $@
 
-echo "\nhaskell:"
+echo -e "\nhaskell:"
 ./ghc_hello $@ && \
 ./ghc_hello $@
 
-echo "\nocamlopt:"
+echo -e "\nocamlopt:"
 ./ocaml/test.nat $@ && \
 ./ocaml/test.nat $@
 
-echo "\nocamlc:"
+echo -e "\nocamlc:"
 ./ocaml/test.bc $@ && \
 ./ocaml/test.bc $@
 
 # TODO: CoreCLR and natively running on Windows
-echo "\ncsharp mono:"
+echo -e "\ncsharp mono:"
 mono ./csharp_hello.exe $@ && \
 mono ./csharp_hello.exe $@
 
-echo "\njava8:"
+echo -e "\njava8:"
 ./vendor/openjdk8/bin/java -cp . jhello.Hello $@ && \
 ./vendor/openjdk8/bin/java -cp . jhello.Hello $@
 
-echo "\njava21:"
-./vendor/openjdk21/bin/java -cp jhello21 jhello.Hello $@ && \
-./vendor/openjdk21/bin/java -cp jhello21 jhello.Hello $@
+echo -e "\njava21:"
+./vendor/openjdk21/bin/java --enable-native-access=ALL-UNNAMED -cp jhello21 jhello.Hello $@ && \
+./vendor/openjdk21/bin/java --enable-native-access=ALL-UNNAMED -cp jhello21 jhello.Hello $@
 
-echo "\njava24:"
-./vendor/openjdk24/bin/java -cp jhello24 jhello.Hello $@ && \
-./vendor/openjdk24/bin/java -cp jhello24 jhello.Hello $@
+echo -e "\njava24:"
+./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello24 jhello.Hello $@ && \
+./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello24 jhello.Hello $@
 
-echo "\nnode:"
+echo -e "\njava21 panama:"
+./vendor/openjdk21/bin/java --enable-preview --enable-native-access=ALL-UNNAMED -cp . jhello_panama.Hello $@ && \
+./vendor/openjdk21/bin/java --enable-preview --enable-native-access=ALL-UNNAMED -cp . jhello_panama.Hello $@
+
+echo -e "\njava24 panama:"
+./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama24 jhello_panama.Hello $@ && \
+./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama24 jhello_panama.Hello $@
+
+echo -e "\nnode:"
 node hello.js $@ && \
 node hello.js $@
 
-echo "\ngo:"
+echo -e "\ngo:"
 ./go_hello $@ && \
 ./go_hello $@
 
-echo "\ndart:"
-dart hello.dart $@ && \
-dart hello.dart $@
+# echo -e "\ndart:"
+# dart hello.dart $@ && \
+# dart hello.dart $@
 
-echo "\nwren:"
-./wren_hello hello.wren $@ && \
-./wren_hello hello.wren $@
+# echo -e "\nwren:"
+# ./wren_hello hello.wren $@ && \
+# ./wren_hello hello.wren $@
 
-echo "\nelixir:"
+echo -e "\nelixir:"
 elixir -r hello.ex -e "S.start" $@ && \
 elixir -r hello.ex -e "S.start" $@
 
-echo "\njulia:"
+echo -e "\njulia:"
 julia hello.jl $@ && \
 julia hello.jl $@
 

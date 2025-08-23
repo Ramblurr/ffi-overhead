@@ -44,6 +44,8 @@
             pkgs.nodejs
             pkgs.nodejs.pkgs.node-gyp
             pkgs.python3
+            pkgs.python3Packages.matplotlib
+            pkgs.python3Packages.numpy
             pkgs.dart
             pkgs.luajit
             pkgs.julia

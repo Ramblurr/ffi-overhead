@@ -73,12 +73,12 @@ Current environment (Nix) (2025-08):
 
 ### Initialize
 ```sh
-tup init
+nix develop --command -- tup init
 ```
 
 ### Compile
 ```sh
-./compile-all.sh
+nix develop --command -- ./compile-all.sh
 ```
 
 Compile opts:
@@ -86,13 +86,6 @@ Compile opts:
 - -C opt-level=2 (rust)
 
 ### Run
-```sh
-./run-all.sh 1000000
-```
-
-### Automated Benchmarking
-
-A Python benchmarking harness is available that runs multiple benchmark iterations, outputs CSV data, and generates performance charts:
 
 ```sh
 # Run with defaults (2 runs, 500M calls)
@@ -118,104 +111,17 @@ int x = 0;
 while (x < count) x = plusone(x);
  ```
 
-- 2 samples/runs
 
-## Performance Visualization
+Default run is with 2 samples
+
+## Results (500M calls)
 
 The benchmark results can be visualized using the automated benchmarking harness:
 
-![FFI Overhead Benchmark Results](benchmark_chart.png)
+![FFI Overhead Benchmark Results for 2025-08](data/2025-08/chart.png)
 
 *Chart shows average execution times across multiple runs. Lower values indicate better performance.*
 
-## Results (500M calls)
-```
-./run-all.sh 500000000
-The results are elapsed time in milliseconds
-============================================
+Raw data: [data/2025-08/raw_data.csv](./data/2025-08/data.csv)
 
-luajit:
-780
-765
-
-julia:
-476
-476
-
-zig:
-478
-473
-
-c:
-865
-947
-
-rust:
-777
-775
-
-ocamlopt:
-866
-871
-
-haskell:
-869
-862
-
-cpp:
-931
-932
-
-Common Lisp via SBCL:
-1149
-1161
-
-java8:
-1434
-1451
-
-java21:
-1563
-1567
-
-java24:
-1624
-1523
-
-ocamlc:
-2710
-2691
-
-node:
-3866
-3869
-
-elixir:
-8144
-8242
-
-go:
-12425
-12251
-
-csharp mono:
-18441
-18430
-
-v:
-0
-0
-
-d:
-974883
-
-d ldc2:
-859864
-
-haskell (incorrect output):
-500000000
-869
-500000000
-862
-```
-
+Tool chain versions used: [data/2025-08/toolchain.txt](./data/2025-08/toolchain.txt)
