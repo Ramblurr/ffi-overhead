@@ -3,7 +3,7 @@ PROJECT_DIR = $(TUP_CWD)
 OPT_FLAG = -O2
 
 CFLAGS += -fPIC $(OPT_FLAG) -Wall -Wextra -Wno-unused-parameter
-CXXFLAGS += -std=c++14 $(CFLAGS) -fno-rtti
+CXXFLAGS += -std=c++17 $(CFLAGS) -fno-rtti
 
 LINK_FLAGS =
 

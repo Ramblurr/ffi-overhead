@@ -6,7 +6,7 @@ LINK_FLAGS += -Lnewplus -lnewplus -Wl,-rpath,$(RPATH_NEWPLUS)
 
 NODE_VERSION = 6.9.0
 
-NODE_GYP_FLAGS = -DNODE_GYP_MODULE_NAME=newplus -DUSING_UV_SHARED=1 -DUSING_V8_SHARED=1 -DV8_DEPRECATION_WARNINGS=1 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILDING_NODE_EXTENSION -I$HOME/.node-gyp/$(NODE_VERSION)/include/node -I$HOME/.node-gyp/$(NODE_VERSION)/src -I$HOME/.node-gyp/$(NODE_VERSION)/deps/uv/include -I$HOME/.node-gyp/$(NODE_VERSION)/deps/v8/include
+NODE_GYP_FLAGS = -DNODE_GYP_MODULE_NAME=newplus -DUSING_UV_SHARED=1 -DUSING_V8_SHARED=1 -DV8_DEPRECATION_WARNINGS=1 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILDING_NODE_EXTENSION -Ivendor/nodejs/include/node
 
 NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 
@@ -27,9 +27,6 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 # csharp (use mcs if csc doesn't work)
 : hello.cs | $(DEPS) |> csc /out:%o %f |> csharp_hello.exe
 
-# nim
-: nimcache/*.o | $(DEPS) |> !cc_exe |> nim_hello
-
 # v
 : hello.v | $(DEPS) |> v -prod %f -o %o |> v_hello
 
@@ -40,7 +37,7 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 : hello.rs | $(DEPS) |> rustc -C opt-level=2 -C link-args="$(LINK_FLAGS)" -o %o %f |> rust_hello
 
 # dart
-: foreach dart/*.cpp |> $(CXX) -c %f -o %o $(CXXFLAGS) -DDART_SHARED_LIB -I/usr/lib/dart -I. |> dart/%B.o
+: foreach dart/*.cpp |> $(CXX) -c %f -o %o $(CXXFLAGS) -DDART_SHARED_LIB -Ivendor/dart/include -I. |> dart/%B.o
 
 : dart/*.o newplus/_.a |> $(CXX) -o %o -shared $(OPT_FLAG) %f |> dart/libnewplus_extension.so
 
@@ -55,15 +52,14 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
 : d_ldc2/*.o | $(DEPS) |> ldc2 -betterC %f -of%o -L-Lnewplus -L-lnewplus -L-rpath=$(RPATH_NEWPLUS) -O -release |> d_ldc2_hello
 
 # haskell
-: hello.hs | $(DEPS) |> /opt/ghc/bin/ghc -O2 -Lnewplus -lnewplus -optl-Wl,-rpath,$(RPATH_NEWPLUS) -o ghc_hello %f |> ghc_hello hello.hi hello.o
+: hello.hs | $(DEPS) |> ghc -O2 -Lnewplus -lnewplus -optl-Wl,-rpath,$(RPATH_NEWPLUS) -o ghc_hello %f |> ghc_hello hello.hi hello.o
 
 # node
 : foreach node/*.cpp |> $(CXX) -c %f -o %o $(NODE_CXX_FLAGS) $(NODE_GYP_FLAGS) -I. |> node/%B.o
 
 : node/*.o newplus/_.a |> $(CXX) -o %o -shared $(OPT_FLAG) -Wl,-soname=%o %f |> newplus.node
 
-# wren
-: foreach wren/*.c |> $(CC) -c %f -o %o $(CFLAGS) -I. -Iwren/include |> wren/%B.o
-
-LINK_FLAGS += -lm
-: wren/*.o wren/*.a | $(DEPS) |> !cc_exe |> wren_hello
+# wren - disabled, not available in nixpkgs
+# : foreach wren/*.c |> $(CC) -c %f -o %o $(CFLAGS) -I. -Iwren/include |> wren/%B.o
+# LINK_FLAGS += -lm
+# : wren/*.o | $(DEPS) |> $(CC) -o %o $(OPT_FLAG) %f $(LINK_FLAGS) -lwren |> wren_hello

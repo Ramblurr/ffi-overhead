@@ -14,7 +14,7 @@ run count = do
   let
     go x | x < count = go (plusone x)
          | otherwise = x
-  print (go 0) -- to force evaluation and also prove it actually happened
+  let result = go 0 -- to force evaluation
   end <- current_timestamp
   print (end - start)
 

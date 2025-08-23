@@ -1,17 +1,15 @@
-#![feature(libc)]
+use std::os::raw::{c_int, c_long};
 
-extern crate libc;
-
-extern
+extern "C"
 {
-    //fn plus(x: libc::c_int, y: libc::c_int) -> libc::c_int;
-    fn plusone(x: libc::c_int) -> libc::c_int;
-    fn current_timestamp() -> libc::c_long;
+    //fn plus(x: c_int, y: c_int) -> c_int;
+    fn plusone(x: c_int) -> c_int;
+    fn current_timestamp() -> c_long;
 }
 
 use std::env;
 
-fn run(count: libc::c_int)
+fn run(count: c_int)
 {
     unsafe
     {
@@ -42,5 +40,5 @@ fn main()
         println!("Must be a positive number not exceeding 2 billion.");
         return;
     }
-    run(count as libc::c_int);
+    run(count as c_int);
 }

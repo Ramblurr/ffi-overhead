@@ -11,7 +11,7 @@ void run(int count) {
         x = plusone(x);
     }
     
-    printf("%d", current_timestamp() - start);
+    printf("%ld\n", current_timestamp() - start);
 }
 
 extern (C) int main(int argc, char** argv) {

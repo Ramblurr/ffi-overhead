@@ -32,12 +32,12 @@ echo "\ncpp:"
 ./cpp_hello $@
 
 echo "\nCommon Lisp via SBCL:"
-./hello.lisp $@ && \
-./hello.lisp $@
+sbcl --script hello.lisp $@ && \
+sbcl --script hello.lisp $@
 
 echo "\nzig:"
-./zig_hello/zig_hello $@ && \
-./zig_hello/zig_hello $@
+./zig-out/zig_hello/zig_hello $@ && \
+./zig-out/zig_hello/zig_hello $@
 
 echo "\nnim:"
 ./nim_hello $@ && \
@@ -76,13 +76,17 @@ echo "\ncsharp mono:"
 mono ./csharp_hello.exe $@ && \
 mono ./csharp_hello.exe $@
 
-echo "\njava7:"
-/usr/lib/jvm/java-7-oracle/bin/java -cp . jhello.Hello $@ && \
-/usr/lib/jvm/java-7-oracle/bin/java -cp . jhello.Hello $@
-
 echo "\njava8:"
-/usr/lib/jvm/java-8-oracle/bin/java -cp . jhello.Hello $@ && \
-/usr/lib/jvm/java-8-oracle/bin/java -cp . jhello.Hello $@
+./vendor/openjdk8/bin/java -cp . jhello.Hello $@ && \
+./vendor/openjdk8/bin/java -cp . jhello.Hello $@
+
+echo "\njava21:"
+./vendor/openjdk21/bin/java -cp jhello21 jhello.Hello $@ && \
+./vendor/openjdk21/bin/java -cp jhello21 jhello.Hello $@
+
+echo "\njava24:"
+./vendor/openjdk24/bin/java -cp jhello24 jhello.Hello $@ && \
+./vendor/openjdk24/bin/java -cp jhello24 jhello.Hello $@
 
 echo "\nnode:"
 node hello.js $@ && \

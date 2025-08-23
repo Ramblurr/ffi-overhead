@@ -2,7 +2,7 @@ defmodule S do
   @on_load :init
 
   def init do
-    :erlang.load_nif('elixir/plus_one', 0)
+    :erlang.load_nif(~c"elixir/plus_one", 0)
   end
 
   def plus_one(_n) do
@@ -20,11 +20,11 @@ defmodule S do
     args = System.argv
     l = length(args)
     if l == 0 do
-      IO.puts('First arg (0 - 2000000000) is required.')
+      IO.puts("First arg (0 - 2000000000) is required.")
     else
       count = String.to_integer(Enum.at(args, 0))
       if count < 1 or count > 2_000_000_000 do
-        IO.puts('Must be a positive number not exceeding 2 billion.')
+        IO.puts("Must be a positive number not exceeding 2 billion.")
       else
         run(count)
       end

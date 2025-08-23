@@ -10,7 +10,7 @@ const c = @cImport({
 });
 
 pub fn main() anyerror!void {
-    var stdout_file = io.getStdOut();
+    const stdout_file = io.getStdOut();
     const stdout = stdout_file;
 
     const args = try std.process.argsAlloc(allocator);

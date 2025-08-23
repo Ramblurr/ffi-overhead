@@ -34,3 +34,6 @@
 .tup
 
 zig-out
+.zig-cache
+.direnv
+.envrc

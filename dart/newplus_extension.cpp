@@ -1,8 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "include/dart_api.h"
-#include "include/dart_native_api.h"
+#include "dart_api.h"
+#include "dart_native_api.h"
 
 extern "C" {
 #include "newplus/plus.h"
