@@ -5,6 +5,8 @@ import subprocess
 import csv
 import statistics
 import sys
+import math
+import os
 from pathlib import Path
 
 BENCHMARKS = {
@@ -64,51 +66,399 @@ BENCHMARKS = {
     "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
     "julia": {"exec": ["julia", "hello.jl"]},
     "janet": {"exec": ["janet", "hello.janet"]},
-    # this is measuring jvm startup time too, so it's not very fair
-    # "clojure/coffi": {
-    #    "cwd": "clojure_coffi",
-    #    "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
-    # },
+    "clj/coffi": {
+        "cwd": "clojure_coffi",
+        "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
+    },
 }
+
+
+def calculate_stats(times):
+    """Calculate statistical measures for a list of times."""
+    if not times:
+        return {"mean": 0, "min": 0, "max": 0, "stddev": 0}
+
+    mean_val = statistics.mean(times)
+    min_val = min(times)
+    max_val = max(times)
+    stddev_val = statistics.stdev(times) if len(times) > 1 else 0
+
+    return {"mean": mean_val, "min": min_val, "max": max_val, "stddev": stddev_val}
+
+
+def format_comparison(mean_time, baseline_time, is_baseline=False):
+    """Format comparison string against baseline."""
+    if baseline_time is None:
+        return "N/A"
+    
+    # If this is the actual baseline benchmark
+    if is_baseline:
+        return "1.00x (baseline)"
+    
+    # Handle zero or near-zero times
+    if baseline_time <= 0.001:  # Less than 1 microsecond
+        if mean_time <= 0.001:
+            return "~equal (both ~0ms)"
+        else:
+            return "N/A (baseline ~0ms)"
+    
+    if mean_time <= 0.001:  # Less than 1 microsecond
+        return "N/A (mean ~0ms)"
+
+    if abs(mean_time - baseline_time) < 0.01:  # Consider very close times as equal
+        return "~equal"
+
+    ratio = mean_time / baseline_time
+    if ratio > 1:
+        return f"{ratio:.2f}x slower"
+    else:
+        return f"{1/ratio:.2f}x faster"
+
+
+def calculate_column_widths(results_dict, stats_dict, has_comparison):
+    """Calculate optimal column widths based on data."""
+    widths = {
+        "benchmark": max(
+            10, max(len(name) for name in results_dict.keys()) if results_dict else 10
+        ),
+        "mean": 8,
+        "min": 8,
+        "max": 8,
+        "stddev": 8,
+    }
+
+    if has_comparison:
+        widths["comparison"] = 15
+
+    # Adjust timing columns based on actual values
+    if stats_dict:
+        max_mean = max(stats["mean"] for stats in stats_dict.values())
+        max_min = max(stats["min"] for stats in stats_dict.values())
+        max_max = max(stats["max"] for stats in stats_dict.values())
+        max_stddev = max(stats["stddev"] for stats in stats_dict.values())
+
+        widths["mean"] = max(8, len(f"{max_mean:.0f} ms"))
+        widths["min"] = max(8, len(f"{max_min:.0f} ms"))
+        widths["max"] = max(8, len(f"{max_max:.0f} ms"))
+        widths["stddev"] = max(8, len(f"{max_stddev:.1f} ms"))
+
+    return widths
+
+
+def format_table_row(columns, widths, alignments):
+    """Format a table row with proper alignment."""
+    formatted_cols = []
+    for i, (col, width, align) in enumerate(zip(columns, widths, alignments)):
+        if align == "left":
+            formatted_cols.append(f"{col:<{width}}")
+        else:  # right
+            formatted_cols.append(f"{col:>{width}}")
+
+    return "│ " + " │ ".join(formatted_cols) + " │"
+
+
+def print_table_header(runs, count, widths, has_comparison):
+    """Print the table header with configuration info."""
+    print(f"\nBenchmark Results ({runs} runs, count={count:,})")
+
+    # Calculate total width for separator
+    total_width = (
+        sum(widths.values()) + len(widths) * 3 + 1
+    )  # 3 chars per column separator + 1 for final │
+    print("─" * total_width)
+
+    # Header row
+    headers = ["Benchmark", "Mean", "Min", "Max", "Std Dev"]
+    header_widths = [
+        widths["benchmark"],
+        widths["mean"],
+        widths["min"],
+        widths["max"],
+        widths["stddev"],
+    ]
+    alignments = ["left", "right", "right", "right", "right"]
+
+    if has_comparison:
+        headers.append("vs Baseline")
+        header_widths.append(widths["comparison"])
+        alignments.append("right")
+
+    print(format_table_row(headers, header_widths, alignments))
+    print("─" * total_width)
+
+
+def print_benchmark_result(name, stats, widths, has_comparison, baseline_time=None):
+    """Print a single benchmark result row."""
+    columns = [
+        name,
+        f"{stats['mean']:.0f} ms",
+        f"{stats['min']:.0f} ms",
+        f"{stats['max']:.0f} ms",
+        f"{stats['stddev']:.1f} ms",
+    ]
+
+    column_widths = [
+        widths["benchmark"],
+        widths["mean"],
+        widths["min"],
+        widths["max"],
+        widths["stddev"],
+    ]
+    alignments = ["left", "right", "right", "right", "right"]
+
+    if has_comparison and baseline_time is not None:
+        columns.append(format_comparison(stats["mean"], baseline_time))
+        column_widths.append(widths["comparison"])
+        alignments.append("right")
+
+    print(format_table_row(columns, column_widths, alignments))
 
 
 def run_benchmark(benchmark_config, count, runs=2, name=""):
     times = []
+    errors = []
     cwd = benchmark_config.get("cwd")
     cmd = benchmark_config["exec"]
 
     for _ in range(runs):
         try:
-            result = subprocess.run(
-                cmd + [str(count)], capture_output=True, text=True, check=True, cwd=cwd
-            )
-            time = int(result.stdout.strip())
+            # For clj/coffi, completely detach from terminal to prevent TTY output
+            if name == "clj/coffi":
+                result = subprocess.run(
+                    cmd + [str(count)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL,
+                    text=True,
+                    check=True,
+                    cwd=cwd,
+                    start_new_session=True,  # Detach from terminal session
+                )
+            else:
+                result = subprocess.run(
+                    cmd + [str(count)],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    cwd=cwd,
+                )
+            # Strip all whitespace including newlines
+            output = result.stdout.strip()
+            time = int(output)
             times.append(time)
         except subprocess.CalledProcessError as e:
-            print(f"ERROR {name}: Command failed with exit code {e.returncode}")
-            print(f"  Command: {' '.join(cmd)}")
-            print(f"  stderr: {e.stderr.strip()}")
+            error_msg = f"Command failed with exit code {e.returncode}"
+            errors.append(error_msg)
             continue
         except ValueError as e:
-            print(f"ERROR {name}: Invalid output - {e}")
-            print(f"  stdout: {result.stdout.strip()}")
+            error_msg = (
+                f"Invalid output - expected integer, got: '{result.stdout.strip()}'"
+            )
+            errors.append(error_msg)
             continue
         except FileNotFoundError:
-            print(f"ERROR {name}: Command not found - {cmd[0]}")
+            error_msg = f"Command not found - {cmd[0]}"
+            errors.append(error_msg)
             continue
-    return times
+
+    return times, errors
 
 
-def run_all_benchmarks(count, runs, include=None, exclude=None):
-    results = {}
+def filter_benchmarks(include=None, exclude=None):
+    """Filter benchmarks based on include/exclude criteria."""
+    benchmarks_to_run = []
     for name, benchmark_config in BENCHMARKS.items():
         if include and name not in include:
             continue
         if exclude and name in exclude:
             continue
-        times = run_benchmark(benchmark_config, count, runs, name)
+        benchmarks_to_run.append((name, benchmark_config))
+    return benchmarks_to_run
+
+
+def setup_table_display(benchmarks_to_run, runs, count, baseline):
+    """Setup table display and return column widths."""
+    # Calculate optimal widths based on all benchmark names and estimated values
+    temp_results = {name: [0] for name, _ in benchmarks_to_run}
+    # Use maximum expected values for width calculation
+    temp_stats = {
+        name: {"mean": 99999, "min": 99999, "max": 99999, "stddev": 999.9}
+        for name, _ in benchmarks_to_run
+    }
+    widths = calculate_column_widths(temp_results, temp_stats, baseline is not None)
+    print_table_header(runs, count, widths, baseline is not None)
+    return widths
+
+
+def update_baseline_time(baseline, baseline_time, name, stats):
+    """Update baseline time based on baseline strategy."""
+    if baseline:
+        if baseline == "first" and baseline_time is None:
+            return stats[name]["mean"]
+        elif baseline == name:
+            return stats[name]["mean"]
+    return baseline_time
+
+
+def print_success_row(name, stats, widths, baseline, baseline_time):
+    """Print a successful benchmark result row."""
+    columns = [
+        name,
+        f"{stats['mean']:.0f} ms",
+        f"{stats['min']:.0f} ms",
+        f"{stats['max']:.0f} ms",
+        f"{stats['stddev']:.1f} ms",
+    ]
+
+    column_widths = [
+        widths["benchmark"],
+        widths["mean"],
+        widths["min"],
+        widths["max"],
+        widths["stddev"],
+    ]
+    alignments = ["left", "right", "right", "right", "right"]
+
+    if baseline is not None:
+        is_baseline = (name == baseline)
+        comparison = format_comparison(stats["mean"], baseline_time, is_baseline)
+        columns.append(comparison)
+        column_widths.append(widths["comparison"])
+        alignments.append("right")
+
+    print(format_table_row(columns, column_widths, alignments))
+
+
+def print_error_row(name, widths, baseline):
+    """Print an error benchmark result row."""
+    columns = [name, "ERROR", "ERROR", "ERROR", "ERROR"]
+    column_widths = [
+        widths["benchmark"],
+        widths["mean"],
+        widths["min"],
+        widths["max"],
+        widths["stddev"],
+    ]
+    alignments = ["left", "right", "right", "right", "right"]
+
+    if baseline is not None:
+        columns.append("ERROR")
+        column_widths.append(widths["comparison"])
+        alignments.append("right")
+
+    print(format_table_row(columns, column_widths, alignments))
+
+
+def clear_running_indicator():
+    """Clear the entire running indicator line."""
+    # Try ANSI escape code first, fallback to spaces if needed
+    if hasattr(sys.stdout, "isatty") and sys.stdout.isatty():
+        # Move to beginning of line and clear to end of line
+        print("\r\033[K", end="")
+    else:
+        # Fallback: overwrite entire line with spaces (assuming max 120 chars)
+        print(f"\r{' ' * 120}\r", end="")
+
+
+def print_final_separator(widths):
+    """Print the final table separator."""
+    total_width = sum(widths.values()) + len(widths) * 3 + 1
+    print("─" * total_width)
+
+
+def print_errors_summary(all_errors):
+    """Print summary of all errors encountered."""
+    if all_errors:
+        print("\nErrors:")
+        for name, errors in all_errors.items():
+            print(f"  {name}:")
+            for error in errors:
+                print(f"    - {error}")
+
+
+def run_all_benchmarks(
+    count, runs, include=None, exclude=None, verbose=False, baseline=None
+):
+    results = {}
+    stats = {}
+    all_errors = {}
+    baseline_time = None
+
+    # Filter benchmarks to run
+    benchmarks_to_run = filter_benchmarks(include, exclude)
+    
+    # If baseline is specified, ensure it runs first
+    if baseline and baseline != "first":
+        # Find the baseline benchmark and move it to the front
+        baseline_benchmark = None
+        remaining_benchmarks = []
+        
+        for name, config in benchmarks_to_run:
+            if name == baseline:
+                baseline_benchmark = (name, config)
+            else:
+                remaining_benchmarks.append((name, config))
+        
+        if baseline_benchmark:
+            benchmarks_to_run = [baseline_benchmark] + remaining_benchmarks
+
+    # Setup table display if verbose
+    widths = None
+    if verbose:
+        widths = setup_table_display(benchmarks_to_run, runs, count, baseline)
+
+    # Run each benchmark
+    for name, benchmark_config in benchmarks_to_run:
+        if verbose:
+            # Show running indicator in table format with "..." in timing columns
+            running_cols = [name, "...", "", "", ""]
+            running_widths = [
+                widths["benchmark"],
+                widths["mean"],
+                widths["min"],
+                widths["max"],
+                widths["stddev"],
+            ]
+            running_alignments = ["left", "left", "left", "left", "left"]
+            if baseline is not None:
+                running_cols.append("")
+                running_widths.append(widths["comparison"])
+                running_alignments.append("left")
+            print(
+                format_table_row(running_cols, running_widths, running_alignments),
+                end="",
+                flush=True,
+            )
+
+        times, errors = run_benchmark(benchmark_config, count, runs, name)
+
+        if verbose:
+            clear_running_indicator()
+
         if times:
+            # Process successful benchmark
             results[name] = times
+            stats[name] = calculate_stats(times)
+            baseline_time = update_baseline_time(baseline, baseline_time, name, stats)
+
+            if verbose:
+                print_success_row(name, stats[name], widths, baseline, baseline_time)
+        else:
+            # Process failed benchmark
+            if errors:
+                all_errors[name] = errors
+            if verbose:
+                print_error_row(name, widths, baseline)
+
+    # Finish table display
+    if verbose and (results or all_errors):
+        if not widths:  # In case no benchmarks ran
+            widths = calculate_column_widths({}, {}, baseline is not None)
+        print_final_separator(widths)
+
+    # Print error summary
+    print_errors_summary(all_errors)
+
     return results
 
 
@@ -172,13 +522,21 @@ def main():
     parser.add_argument(
         "--exclude", help="Comma-separated list of languages to exclude"
     )
+    parser.add_argument(
+        "--baseline", help="Benchmark to use as baseline for comparison"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Display results in table format"
+    )
 
     args = parser.parse_args()
 
     include = set(args.include.split(",")) if args.include else None
     exclude = set(args.exclude.split(",")) if args.exclude else None
 
-    results = run_all_benchmarks(args.count, args.runs, include, exclude)
+    results = run_all_benchmarks(
+        args.count, args.runs, include, exclude, args.verbose, args.baseline
+    )
     if not results:
         sys.exit(1)
 
@@ -186,10 +544,12 @@ def main():
     if args.csv:
         save_csv(results, averages, args.csv)
 
-    for i, (lang, avg_time) in enumerate(
-        sorted(averages.items(), key=lambda x: x[1]), 1
-    ):
-        print(f"{i:2}. {lang:<25} {avg_time:8.2f} ms")
+    # Only print simple list format if not in verbose mode
+    if not args.verbose:
+        for i, (lang, avg_time) in enumerate(
+            sorted(averages.items(), key=lambda x: x[1]), 1
+        ):
+            print(f"{i:2}. {lang:<25} {avg_time:8.2f} ms")
 
     if args.chart:
         create_chart(averages, args.chart)
