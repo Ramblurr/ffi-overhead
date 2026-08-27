@@ -119,6 +119,13 @@ else
     echo "- ghc not found"
 fi
 
+chez_version=$(scheme --version 2>/dev/null)
+if [ -n "$chez_version" ]; then
+    echo "- chez $chez_version"
+else
+    echo "- chez not found"
+fi
+
 ocaml_version=$(ocaml -version 2>/dev/null | cut -d' ' -f5)
 if [ -n "$ocaml_version" ]; then
     echo "- ocaml $ocaml_version"

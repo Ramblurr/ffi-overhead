@@ -149,6 +149,7 @@
             pkgs.dmd
             pkgs.ldc
             pkgs.ghc
+            pkgs.chez
             pkgs.ocaml
             pkgs.mono
             pkgs.nodejs

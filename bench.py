@@ -15,6 +15,16 @@ BENCHMARKS = {
     "c/static": {"exec": ["./c_static_hello"]},
     "cpp": {"exec": ["./cpp_hello"]},
     "CL/SBCL": {"exec": ["sbcl", "--script", "hello.lisp"]},
+    "chez": {
+        "exec": [
+            "scheme",
+            "--quiet",
+            "--optimize-level",
+            "3",
+            "--script",
+            "hello.ss",
+        ]
+    },
     "zig": {"exec": ["./zig-out/zig_hello/zig_hello"]},
     "v": {"exec": ["./v_hello"]},
     "rust": {"exec": ["./rust_hello"]},
