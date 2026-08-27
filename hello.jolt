@@ -1,0 +1,24 @@
+(ns ffi-overhead.jolt
+  (:require
+   [jolt.ffi :as ffi]))
+
+(ffi/load-library "./newplus/libnewplus.so")
+(ffi/defcfn plusone "plusone" [:int] :int)
+(ffi/defcfn current-timestamp "current_timestamp" [] :int64)
+
+(defn parse-count [args]
+  (let [count (when (= 1 (count args))
+                (parse-long (first args)))]
+    (when-not (and count (pos? count) (<= count 2000000000))
+      (throw (ex-info "Count must be one positive integer not exceeding 2 billion." {})))
+    count))
+
+(defn run [count]
+  (plusone 0)
+  (let [start (current-timestamp)]
+    (loop [x 0]
+      (if (< x count)
+        (recur (plusone x))
+        (println (- (current-timestamp) start))))))
+
+(run (parse-count *command-line-args*))

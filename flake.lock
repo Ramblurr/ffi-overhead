@@ -38,6 +38,46 @@
         "type": "github"
       }
     },
+    "jolt": {
+      "inputs": {
+        "makes": "makes",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787809268,
+        "narHash": "sha256-acoucwPUfuu0vY1mL4ixaBQatYrlYWbsF5EPWkus6Zo=",
+        "ref": "refs/heads/main",
+        "rev": "aafa0fc37f48847469cf0c6230b09f95cf68630a",
+        "revCount": 2718,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jolt-lang/jolt.git"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jolt-lang/jolt.git"
+      }
+    },
+    "makes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785480273,
+        "narHash": "sha256-/g8O4PW0v3NNChKyrWw/EqpEAUCKiI9/KFE2EiXoUlA=",
+        "owner": "makeplus",
+        "repo": "makes",
+        "rev": "d14cb578c2f04e6f9d00e01c7c4e416a9baf94e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "makeplus",
+        "repo": "makes",
+        "rev": "d14cb578c2f04e6f9d00e01c7c4e416a9baf94e9",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1787498568,
@@ -56,6 +96,7 @@
       "inputs": {
         "babashka-src": "babashka-src",
         "flakelight": "flakelight",
+        "jolt": "jolt",
         "nixpkgs": "nixpkgs"
       }
     }

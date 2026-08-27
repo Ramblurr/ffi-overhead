@@ -15,7 +15,7 @@ import json
 with open("flake.lock") as f:
     nodes = json.load(f)["nodes"]
 
-for name in ("nixpkgs", "flakelight", "babashka-src"):
+for name in ("nixpkgs", "flakelight", "babashka-src", "jolt"):
     locked = nodes[name]["locked"]
     print(f"- {name} {locked['rev']}")
 PY
@@ -194,6 +194,13 @@ if [ -n "$janet_version" ]; then
     echo "- janet $janet_version"
 else
     echo "- janet not found"
+fi
+
+jolt_version=$(jolt --version 2>/dev/null | sed 's/^jolt //')
+if [ -n "$jolt_version" ]; then
+    echo "- jolt $jolt_version"
+else
+    echo "- jolt not found"
 fi
 clojure_version=$(clj -M -e '(clojure-version)' 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
 if [ -n "$clojure_version" ]; then

@@ -7,6 +7,10 @@
       url = "git+https://github.com/babashka/babashka.git?submodules=1";
       flake = false;
     };
+    jolt = {
+      url = "git+https://github.com/jolt-lang/jolt.git?submodules=1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flakelight.url = "github:nix-community/flakelight";
     flakelight.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -15,6 +19,7 @@
       self,
       babashka-src,
       flakelight,
+      jolt,
       nixpkgs,
       ...
     }:
@@ -128,6 +133,7 @@
         {
           packages = [
             (makeBabashka nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system})
+            jolt.packages.${pkgs.stdenv.hostPlatform.system}.default
             clojure
             # Build tools
             pkgs.gcc

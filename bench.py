@@ -67,6 +67,7 @@ BENCHMARKS = {
     "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
     "julia": {"exec": ["julia", "hello.jl"]},
     "janet": {"exec": ["janet", "hello.janet"]},
+    "jolt": {"exec": ["jolt", "hello.jolt"]},
     "babashka": {"exec": ["bb", "hello.bb"]},
     "clj/coffi": {
         "cwd": "clojure_coffi",
