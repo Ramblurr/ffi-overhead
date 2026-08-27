@@ -69,6 +69,14 @@ BENCHMARKS = {
     "janet": {"exec": ["janet", "hello.janet"]},
     "jolt": {"exec": ["jolt", "hello.jolt"]},
     "babashka": {"exec": ["bb", "hello.bb"]},
+    "clj/panama": {
+        "exec": [
+            "clojure",
+            "-J--enable-native-access=ALL-UNNAMED",
+            "-M",
+            "hello_panama.clj",
+        ]
+    },
     "clj/coffi": {
         "cwd": "clojure_coffi",
         "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
