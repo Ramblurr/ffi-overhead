@@ -1,0 +1,37 @@
+Current environment:
+```
+- x86_64 Linux 6.18.39
+- CPU AMD Ryzen 9 7950X3D 16-Core Processor
+# flake inputs
+- nixpkgs 56c02bc00adcf003215cc4bd996d6efaf4cff188
+- flakelight 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226
+- babashka-src 44bb86e07025391c91dba75c4362e7d6248610b0
+- gcc/g++ 15.3.0
+- tup 0.8
+- python 3.14.7 (matplotlib 3.11.1, numpy 2.5.1)
+- zig 0.14.1
+- nim 2.2.10
+- v V 0.5.2
+- java8 1.8.0_504
+- java21 21.0.12
+- java25 25.0.4
+- go 1.26.5
+- rust 1.97.1 (8bab26f4f 2026-07-14) (built from a source tarball)
+- dmd 2.112.1
+- ldc2 1.42.0
+- ghc 9.10.3
+- ocaml 5.4.1
+- mono 6.14.1
+- sbcl 2.6.7
+# dynamic languages
+- luajit 2.1.1774638290
+- julia 1.12.7
+- node 24.19.0
+- dart 3.13.0 (disabled - deprecated native extensions)
+- nim 2.2.10 (disabled - rpath issues)
+- wren not available (not in nixpkgs)
+- elixir 1.18.4 (Erlang/OTP 28)
+- janet 1.41.2-release
+- clojure 1.12.5 (coffi 1.0.615)
+- babashka 1.13.220-SNAPSHOT (git 44bb86e07025391c91dba75c4362e7d6248610b0, libffi 3.8.0, plusone backend trampoline)
+```

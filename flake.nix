@@ -2,6 +2,7 @@
   description = "dev env";
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
+    # TODO remove once babashka with ffi ends up in nixpkgs
     babashka-src = {
       url = "git+https://github.com/babashka/babashka.git?submodules=1";
       flake = false;

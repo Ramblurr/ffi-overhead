@@ -5,6 +5,20 @@ echo "\`\`\`"
 
 # System info
 echo "- $(uname -m) $(uname -s) $(uname -r)"
+cpu_model=$(sed -n 's/^model name[[:space:]]*: //p' /proc/cpuinfo | head -1)
+echo "- CPU $cpu_model"
+
+echo "# flake inputs"
+python3 <<'PY'
+import json
+
+with open("flake.lock") as f:
+    nodes = json.load(f)["nodes"]
+
+for name in ("nixpkgs", "flakelight", "babashka-src"):
+    locked = nodes[name]["locked"]
+    print(f"- {name} {locked['rev']}")
+PY
 
 # Build tools
 gcc_version=$(gcc --version 2>/dev/null | head -1 | sed 's/.*) //')
@@ -21,6 +35,11 @@ else
     echo "- tup not found"
 fi
 
+python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2)
+matplotlib_version=$(python3 -c 'import matplotlib; print(matplotlib.__version__)' 2>/dev/null)
+numpy_version=$(python3 -c 'import numpy; print(numpy.__version__)' 2>/dev/null)
+echo "- python $python_version (matplotlib $matplotlib_version, numpy $numpy_version)"
+
 # Compiled languages
 zig_version=$(zig version 2>/dev/null)
 if [ -n "$zig_version" ]; then
@@ -36,7 +55,7 @@ else
     echo "- nim not found"
 fi
 
-v_version=$(v version 2>/dev/null | head -1)
+v_version=$(v version 2>/dev/null | head -1 | sed 's/[[:space:]]*$//')
 if [ -n "$v_version" ]; then
     echo "- v $v_version"
 else
@@ -79,14 +98,14 @@ else
     echo "- rust not found"
 fi
 
-dmd_version=$(dmd --version 2>/dev/null | head -1 | cut -d' ' -f2)
+dmd_version=$(dmd --version 2>/dev/null | head -1 | sed -n 's/.*Compiler v\([^ ]*\).*/\1/p')
 if [ -n "$dmd_version" ]; then
     echo "- dmd $dmd_version"
 else
     echo "- dmd not found"
 fi
 
-ldc2_version=$(ldc2 --version 2>/dev/null | head -1 | cut -d' ' -f6 | sed 's/[():]//')
+ldc2_version=$(ldc2 --version 2>/dev/null | head -1 | sed -n 's/.*(\([^):]*\)).*/\1/p')
 if [ -n "$ldc2_version" ]; then
     echo "- ldc2 $ldc2_version"
 else
@@ -178,8 +197,15 @@ else
 fi
 clojure_version=$(clj -M -e '(clojure-version)' 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
 if [ -n "$clojure_version" ]; then
-    coffi_version=$(cat clojure_coffi/deps.edn | jet -t ':deps' 2>/dev/null | jet -t 'vals first :mvn/version' 2>/dev/null | tr -d '"')
+    coffi_version=$(sed -n 's/.*org\.suskalo\/coffi {:mvn\/version "\([^"]*\)".*/\1/p' clojure_coffi/deps.edn)
     echo "- clojure $clojure_version (coffi $coffi_version)"
 fi
+
+bb_version=$(bb --version 2>/dev/null | sed 's/^babashka v//')
+bb_description=$(bb describe 2>/dev/null)
+bb_sha=$(printf '%s\n' "$bb_description" | sed -n 's/.*:git\/sha[[:space:]]*"\([^"]*\)".*/\1/p')
+bb_libffi=$(printf '%s\n' "$bb_description" | sed -n 's/.*:libffi\/version[[:space:]]*"\([^"]*\)".*/\1/p')
+bb_backend=$(bb -e '(require (quote [babashka.ffi :as ffi])) (let [library (ffi/load-library "./newplus/libnewplus.so") plusone (ffi/cfn library "plusone" [:int] :int)] (println (name (:babashka.ffi/backend (meta plusone)))))' 2>/dev/null)
+echo "- babashka $bb_version (git $bb_sha, libffi $bb_libffi, plusone backend $bb_backend)"
 
 echo "\`\`\`"

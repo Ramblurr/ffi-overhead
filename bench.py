@@ -67,6 +67,7 @@ BENCHMARKS = {
     "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
     "julia": {"exec": ["julia", "hello.jl"]},
     "janet": {"exec": ["janet", "hello.janet"]},
+    "babashka": {"exec": ["bb", "hello.bb"]},
     "clj/coffi": {
         "cwd": "clojure_coffi",
         "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
@@ -470,7 +471,7 @@ def calculate_averages(results):
 
 def save_csv(results, averages, filename):
     with open(filename, "w", newline="") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow(["Language", "Average Time (ms)", "All Times (ms)"])
         for lang in sorted(averages.keys(), key=lambda x: averages[x]):
             times_str = ",".join(str(t) for t in results[lang])
