@@ -10,7 +10,7 @@ Current environment:
 - gcc/g++ 15.3.0
 - tup 0.8
 - python 3.14.7 (matplotlib 3.11.1, numpy 2.5.1)
-- zig 0.14.1
+- zig 0.16.0
 - nim 2.2.10
 - v V 0.5.2
 - java8 1.8.0_504
@@ -21,6 +21,7 @@ Current environment:
 - dmd 2.112.1
 - ldc2 1.42.0
 - ghc 9.10.3
+- chez 10.4.1
 - ocaml 5.4.1
 - mono 6.14.1
 - sbcl 2.6.7

@@ -39,33 +39,35 @@ nix develop --command -- python3 bench.py \
 
 | Benchmark | Mean | Min | Max | Std dev | vs baseline |
 |---|---:|---:|---:|---:|---:|
-| c/static | 487 ms | 479 ms | 492 ms | 4.5 ms | 1.00x (baseline) |
-| luajit | 1368 ms | 1319 ms | 1402 ms | 31.4 ms | 2.81x slower |
-| c/dynamic | 903 ms | 891 ms | 946 ms | 15.8 ms | 1.86x slower |
-| cpp | 920 ms | 900 ms | 990 ms | 27.7 ms | 1.89x slower |
-| CL/SBCL | 1196 ms | 1172 ms | 1231 ms | 19.4 ms | 2.46x slower |
-| zig | 497 ms | 490 ms | 506 ms | 5.2 ms | 1.02x slower |
-| v | 803 ms | 790 ms | 819 ms | 9.1 ms | 1.65x slower |
-| rust | 807 ms | 794 ms | 824 ms | 8.9 ms | 1.66x slower |
-| d | 912 ms | 899 ms | 931 ms | 10.0 ms | 1.87x slower |
-| d ldc2 | 912 ms | 905 ms | 933 ms | 8.6 ms | 1.87x slower |
-| haskell | 910 ms | 900 ms | 915 ms | 4.9 ms | 1.87x slower |
-| ocamlopt | 905 ms | 895 ms | 920 ms | 8.6 ms | 1.86x slower |
-| ocamlc | 2551 ms | 2507 ms | 2622 ms | 34.0 ms | 5.24x slower |
-| csharp mono | 20031 ms | 19906 ms | 20161 ms | 84.2 ms | 41.16x slower |
-| java8/jni | 1574 ms | 1484 ms | 1776 ms | 84.3 ms | 3.23x slower |
-| java21/jni | 1626 ms | 1602 ms | 1656 ms | 15.6 ms | 3.34x slower |
-| java25/jni | 1602 ms | 1567 ms | 1706 ms | 42.1 ms | 3.29x slower |
-| java21/panama | 1468 ms | 1431 ms | 1529 ms | 26.7 ms | 3.02x slower |
-| java25/panama | 1424 ms | 1390 ms | 1469 ms | 25.2 ms | 2.93x slower |
-| node | 3903 ms | 3775 ms | 4351 ms | 163.5 ms | 8.02x slower |
-| go | 10363 ms | 9747 ms | 11204 ms | 467.8 ms | 21.29x slower |
-| elixir | 9452 ms | 9179 ms | 10088 ms | 297.4 ms | 19.42x slower |
-| julia | 515 ms | 503 ms | 525 ms | 7.0 ms | 1.06x slower |
-| janet | 28320 ms | 27211 ms | 34228 ms | 2101.6 ms | 58.19x slower |
-| jolt | 4847 ms | 4698 ms | 5061 ms | 95.5 ms | 9.96x slower |
-| babashka | 32304 ms | 31286 ms | 33552 ms | 690.7 ms | 66.37x slower |
-| clj/coffi | 2872 ms | 2707 ms | 3083 ms | 130.1 ms | 5.90x slower |
+| c/static | 500 ms | 491 ms | 506 ms | 4.9 ms | 1.00x (baseline) |
+| luajit | 1377 ms | 1368 ms | 1384 ms | 4.8 ms | 2.75x slower |
+| c/dynamic | 897 ms | 881 ms | 909 ms | 7.2 ms | 1.79x slower |
+| cpp | 902 ms | 893 ms | 920 ms | 8.8 ms | 1.80x slower |
+| CL/SBCL | 1217 ms | 1194 ms | 1285 ms | 26.1 ms | 2.43x slower |
+| chez | 1267 ms | 1204 ms | 1605 ms | 123.1 ms | 2.53x slower |
+| zig | 496 ms | 494 ms | 499 ms | 1.4 ms | 1.01x faster |
+| v | 790 ms | 778 ms | 797 ms | 5.9 ms | 1.58x slower |
+| rust | 783 ms | 777 ms | 794 ms | 4.8 ms | 1.57x slower |
+| d | 884 ms | 872 ms | 912 ms | 15.1 ms | 1.77x slower |
+| d ldc2 | 910 ms | 875 ms | 979 ms | 30.4 ms | 1.82x slower |
+| haskell | 900 ms | 883 ms | 934 ms | 15.0 ms | 1.80x slower |
+| ocamlopt | 883 ms | 880 ms | 886 ms | 2.2 ms | 1.76x slower |
+| ocamlc | 2531 ms | 2437 ms | 3158 ms | 221.2 ms | 5.06x slower |
+| csharp mono | 19678 ms | 19502 ms | 20027 ms | 185.3 ms | 39.32x slower |
+| java8/jni | 1505 ms | 1460 ms | 1672 ms | 66.5 ms | 3.01x slower |
+| java21/jni | 1592 ms | 1535 ms | 1684 ms | 40.9 ms | 3.18x slower |
+| java25/jni | 1571 ms | 1536 ms | 1637 ms | 32.7 ms | 3.14x slower |
+| java21/panama | 1434 ms | 1411 ms | 1450 ms | 15.2 ms | 2.87x slower |
+| java25/panama | 1401 ms | 1378 ms | 1463 ms | 24.6 ms | 2.80x slower |
+| node | 3704 ms | 3623 ms | 3767 ms | 48.5 ms | 7.40x slower |
+| go | 9634 ms | 9401 ms | 9868 ms | 161.1 ms | 19.25x slower |
+| elixir | 8578 ms | 8451 ms | 8840 ms | 108.9 ms | 17.14x slower |
+| julia | 493 ms | 481 ms | 504 ms | 8.7 ms | 1.02x faster |
+| janet | 25942 ms | 25720 ms | 26313 ms | 232.9 ms | 51.84x slower |
+| jolt | 4915 ms | 4498 ms | 5287 ms | 286.1 ms | 9.82x slower |
+| babashka | 30197 ms | 30056 ms | 30907 ms | 262.1 ms | 60.35x slower |
+| clj/panama | 2409 ms | 2253 ms | 2594 ms | 121.9 ms | 4.81x slower |
+| clj/coffi | 2651 ms | 2600 ms | 2729 ms | 51.6 ms | 5.30x slower |
 
 Ran on an AMD Ryzen 9 7950X3D 16-Core CPU.
 
@@ -100,7 +102,7 @@ Current environment (Nix) (2026-08):
 - gcc/g++ 15.3.0
 - tup 0.8
 - python 3.14.7 (matplotlib 3.11.1, numpy 2.5.1)
-- zig 0.14.1
+- zig 0.16.0
 - v V 0.5.2
 - java8 1.8.0_504
 - java21 21.0.12
@@ -110,6 +112,7 @@ Current environment (Nix) (2026-08):
 - dmd 2.112.1
 - ldc2 1.42.0
 - ghc 9.10.3
+- chez 10.4.1
 - ocaml 5.4.1
 - mono 6.14.1
 - sbcl 2.6.7
