@@ -58,11 +58,11 @@ else
     echo "- java21 not found"
 fi
 
-java24_version=$(./vendor/openjdk24/bin/java -version 2>&1 | head -1 | sed 's/.*"\(.*\)".*/\1/' 2>/dev/null)
-if [ -n "$java24_version" ]; then
-    echo "- java24 $java24_version"
+java25_version=$(./vendor/openjdk25/bin/java -version 2>&1 | head -1 | sed 's/.*"\(.*\)".*/\1/' 2>/dev/null)
+if [ -n "$java25_version" ]; then
+    echo "- java25 $java25_version"
 else
-    echo "- java24 not found"
+    echo "- java25 not found"
 fi
 
 go_version=$(go version 2>/dev/null | cut -d' ' -f3 | sed 's/go//')

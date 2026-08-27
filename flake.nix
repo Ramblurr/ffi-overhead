@@ -15,7 +15,7 @@
       devShell =
         pkgs:
         let
-          javaVersion = "24";
+          javaVersion = "25";
           jdk = pkgs."jdk${javaVersion}";
           clojure = pkgs.clojure.override { inherit jdk; };
           libraries = [
@@ -33,7 +33,7 @@
             pkgs.jet
             # Language compilers and runtimes
             pkgs.nim
-            pkgs.zig
+            pkgs.zig_0_14
             pkgs.go
             pkgs.rustc
             pkgs.cargo
@@ -43,15 +43,15 @@
             pkgs.ocaml
             pkgs.mono
             pkgs.nodejs
-            pkgs.nodejs.pkgs.node-gyp
+            pkgs.node-gyp
             pkgs.python3
             pkgs.python3Packages.matplotlib
             pkgs.python3Packages.numpy
             pkgs.dart
             pkgs.luajit
             pkgs.julia
-            pkgs.elixir
-            pkgs.erlang
+            pkgs.beamPackages.elixir
+            pkgs.beamPackages.erlang
             pkgs.vlang
             pkgs.sbcl
             pkgs.janet
@@ -65,11 +65,11 @@
             ln -sfn ${pkgs.jdk11} vendor/openjdk11 || true
             ln -sfn ${pkgs.jdk17} vendor/openjdk17 || true
             ln -sfn ${pkgs.jdk21} vendor/openjdk21 || true
-            ln -sfn ${pkgs.jdk24} vendor/openjdk24 || true
+            ln -sfn ${pkgs.jdk25} vendor/openjdk25 || true
             ln -sfn ${pkgs.nodejs} vendor/nodejs || true
             ln -sfn ${pkgs.dart} vendor/dart || true
 
-            '';
+          '';
 
         };
 

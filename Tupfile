@@ -8,7 +8,7 @@ NODE_VERSION = 6.9.0
 
 NODE_GYP_FLAGS = -DNODE_GYP_MODULE_NAME=newplus -DUSING_UV_SHARED=1 -DUSING_V8_SHARED=1 -DV8_DEPRECATION_WARNINGS=1 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DBUILDING_NODE_EXTENSION -Ivendor/nodejs/include/node
 
-NODE_CXX_FLAGS = $(CXXFLAGS) -fno-exceptions
+NODE_CXX_FLAGS = $(CXXFLAGS) -std=c++20 -fno-exceptions
 
 # =====================================
 

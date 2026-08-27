@@ -5,11 +5,11 @@ include_rules
 # Use vendor JDKs from flake.nix shellHook
 JDK8_HOME = $(PROJECT_DIR)/vendor/openjdk8
 JDK21_HOME = $(PROJECT_DIR)/vendor/openjdk21
-JDK24_HOME = $(PROJECT_DIR)/vendor/openjdk24
+JDK25_HOME = $(PROJECT_DIR)/vendor/openjdk25
 
 CFLAGS += -I$(JDK8_HOME)/include -I$(JDK8_HOME)/include/linux
 CFLAGS21 += -I$(JDK21_HOME)/include -I$(JDK21_HOME)/include/linux
-CFLAGS24 += -I$(JDK24_HOME)/include -I$(JDK24_HOME)/include/linux
+CFLAGS25 += -I$(JDK25_HOME)/include -I$(JDK25_HOME)/include/linux
 
 N1 = newplus
 DIR1 = $(PROJECT_DIR)/$(N1)
@@ -23,5 +23,5 @@ DIR1 = $(PROJECT_DIR)/$(N1)
 
 : Hello.java |> $(JDK8_HOME)/bin/javac -d .. %f |> %B.class
 : Hello.java |> $(JDK21_HOME)/bin/javac -d ../jhello21 %f |> ../jhello21/jhello/%B.class
-: Hello.java |> $(JDK24_HOME)/bin/javac -d ../jhello24 %f |> ../jhello24/jhello/%B.class
+: Hello.java |> $(JDK25_HOME)/bin/javac -d ../jhello25 %f |> ../jhello25/jhello/%B.class
 

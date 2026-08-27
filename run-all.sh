@@ -84,17 +84,17 @@ echo -e "\njava21:"
 ./vendor/openjdk21/bin/java --enable-native-access=ALL-UNNAMED -cp jhello21 jhello.Hello $@ && \
 ./vendor/openjdk21/bin/java --enable-native-access=ALL-UNNAMED -cp jhello21 jhello.Hello $@
 
-echo -e "\njava24:"
-./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello24 jhello.Hello $@ && \
-./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello24 jhello.Hello $@
+echo -e "\njava25:"
+./vendor/openjdk25/bin/java --enable-native-access=ALL-UNNAMED -cp jhello25 jhello.Hello $@ && \
+./vendor/openjdk25/bin/java --enable-native-access=ALL-UNNAMED -cp jhello25 jhello.Hello $@
 
 echo -e "\njava21 panama:"
 ./vendor/openjdk21/bin/java --enable-preview --enable-native-access=ALL-UNNAMED -cp . jhello_panama.Hello $@ && \
 ./vendor/openjdk21/bin/java --enable-preview --enable-native-access=ALL-UNNAMED -cp . jhello_panama.Hello $@
 
-echo -e "\njava24 panama:"
-./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama24 jhello_panama.Hello $@ && \
-./vendor/openjdk24/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama24 jhello_panama.Hello $@
+echo -e "\njava25 panama:"
+./vendor/openjdk25/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama25 jhello_panama.Hello $@ && \
+./vendor/openjdk25/bin/java --enable-native-access=ALL-UNNAMED -cp jhello_panama25 jhello_panama.Hello $@
 
 echo -e "\nnode:"
 node hello.js $@ && \

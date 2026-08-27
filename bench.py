@@ -34,12 +34,12 @@ BENCHMARKS = {
             "jhello.Hello",
         ]
     },
-    "java24/jni": {
+    "java25/jni": {
         "exec": [
-            "./vendor/openjdk24/bin/java",
+            "./vendor/openjdk25/bin/java",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
-            "jhello24",
+            "jhello25",
             "jhello.Hello",
         ]
     },
@@ -53,12 +53,12 @@ BENCHMARKS = {
             "jhello_panama.Hello",
         ]
     },
-    "java24/panama": {
+    "java25/panama": {
         "exec": [
-            "./vendor/openjdk24/bin/java",
+            "./vendor/openjdk25/bin/java",
             "--enable-native-access=ALL-UNNAMED",
             "-cp",
-            "jhello_panama24",
+            "jhello_panama25",
             "jhello_panama.Hello",
         ]
     },
@@ -436,6 +436,9 @@ def run_all_benchmarks(
         if verbose:
             clear_running_indicator()
 
+        if errors:
+            all_errors[name] = errors
+
         if times:
             # Process successful benchmark
             results[name] = times
@@ -446,8 +449,6 @@ def run_all_benchmarks(
                 print_success_row(name, stats[name], widths, baseline, baseline_time)
         else:
             # Process failed benchmark
-            if errors:
-                all_errors[name] = errors
             if verbose and widths:
                 print_error_row(name, widths, baseline)
 
@@ -460,7 +461,7 @@ def run_all_benchmarks(
     # Print error summary
     print_errors_summary(all_errors)
 
-    return results
+    return results, all_errors
 
 
 def calculate_averages(results):
@@ -535,10 +536,29 @@ def main():
     include = set(args.include.split(",")) if args.include else None
     exclude = set(args.exclude.split(",")) if args.exclude else None
 
-    results = run_all_benchmarks(
+    known_benchmarks = set(BENCHMARKS)
+    for option, requested in (("--include", include), ("--exclude", exclude)):
+        unknown = requested - known_benchmarks if requested else set()
+        if unknown:
+            parser.error(
+                f"{option} contains unknown benchmark(s): {', '.join(sorted(unknown))}"
+            )
+
+    selected_benchmarks = filter_benchmarks(include, exclude)
+    selected_names = {name for name, _ in selected_benchmarks}
+    if (
+        args.baseline
+        and args.baseline != "first"
+        and args.baseline not in selected_names
+    ):
+        parser.error(f"--baseline benchmark is not selected: {args.baseline}")
+    results, errors = run_all_benchmarks(
         args.count, args.runs, include, exclude, args.verbose, args.baseline
     )
-    if not results:
+    complete = set(results) == selected_names and all(
+        len(times) == args.runs for times in results.values()
+    )
+    if errors or not results or not complete:
         sys.exit(1)
 
     averages = calculate_averages(results)
