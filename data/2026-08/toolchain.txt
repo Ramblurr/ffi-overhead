@@ -6,6 +6,7 @@ Current environment:
 - nixpkgs 56c02bc00adcf003215cc4bd996d6efaf4cff188
 - flakelight 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226
 - babashka-src 44bb86e07025391c91dba75c4362e7d6248610b0
+- jolt aafa0fc37f48847469cf0c6230b09f95cf68630a
 - gcc/g++ 15.3.0
 - tup 0.8
 - python 3.14.7 (matplotlib 3.11.1, numpy 2.5.1)
@@ -32,6 +33,7 @@ Current environment:
 - wren not available (not in nixpkgs)
 - elixir 1.18.4 (Erlang/OTP 28)
 - janet 1.41.2-release
+- jolt aafa0fc
 - clojure 1.12.5 (coffi 1.0.615)
 - babashka 1.13.220-SNAPSHOT (git 44bb86e07025391c91dba75c4362e7d6248610b0, libffi 3.8.0, plusone backend trampoline)
 ```
