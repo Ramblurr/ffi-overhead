@@ -142,7 +142,7 @@
             pkgs.jet
             # Language compilers and runtimes
             pkgs.nim
-            pkgs.zig_0_14
+            pkgs.zig_0_16
             pkgs.go
             pkgs.rustc
             pkgs.cargo

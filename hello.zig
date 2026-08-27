@@ -1,7 +1,4 @@
 const std = @import("std");
-const os = std.os;
-const io = std.io;
-const allocator = std.heap.c_allocator;
 const c = @cImport({
     // See https://github.com/zig-lang/zig/issues/515
     @cDefine("_NO_CRT_STDIO_INLINE", "1");
@@ -9,20 +6,17 @@ const c = @cImport({
     @cInclude("newplus/plus.h");
 });
 
-pub fn main() anyerror!void {
-    const stdout_file = io.getStdOut();
-    const stdout = stdout_file;
-
-    const args = try std.process.argsAlloc(allocator);
+pub fn main(init: std.process.Init) !void {
+    const args = try init.minimal.args.toSlice(init.arena.allocator());
 
     if (args.len == 1) {
-        try stdout.writeAll("First arg (0 - 2000000000) is required.\n");
+        _ = c.printf("First arg (0 - 2000000000) is required.\n");
         return;
     }
 
     const count = try std.fmt.parseInt(i32, args[1], 10);
     if (count <= 0 or count > 2000000000) {
-        try stdout.writeAll("Must be a positive number not exceeding 2 billion.\n");
+        _ = c.printf("Must be a positive number not exceeding 2 billion.\n");
         return;
     }
 
