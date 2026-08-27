@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "babashka-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787777408,
+        "narHash": "sha256-LlDPqQYpYlfO0AIARjCFL6uKq/Vy+jAacr3/SERnOLU=",
+        "ref": "refs/heads/master",
+        "rev": "44bb86e07025391c91dba75c4362e7d6248610b0",
+        "revCount": 4636,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/babashka/babashka.git"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/babashka/babashka.git"
+      }
+    },
     "flakelight": {
       "inputs": {
         "nixpkgs": [
@@ -36,6 +54,7 @@
     },
     "root": {
       "inputs": {
+        "babashka-src": "babashka-src",
         "flakelight": "flakelight",
         "nixpkgs": "nixpkgs"
       }
