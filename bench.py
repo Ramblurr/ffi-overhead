@@ -83,8 +83,11 @@ BENCHMARKS = {
         "exec": [
             "clojure",
             "-J--enable-native-access=ALL-UNNAMED",
+            "-Sdeps",
+            '{:paths ["clojure_panama/classes"]}',
             "-M",
-            "hello_panama.clj",
+            "-m",
+            "clojure-panama.hello",
         ]
     },
     "clj/coffi": {

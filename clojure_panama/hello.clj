@@ -1,4 +1,5 @@
-(ns ffi-overhead.panama
+(ns clojure-panama.hello
+  (:gen-class)
   (:import
    [java.lang.foreign Arena FunctionDescriptor Linker Linker$Option MemoryLayout SymbolLookup ValueLayout]
    [java.lang.invoke MethodHandle MethodHandleProxies]
@@ -60,4 +61,5 @@
         (recur (.applyAsInt plusone (int x)))
         (println (- (.getAsLong current-timestamp) start))))))
 
-(run (parse-count *command-line-args*))
+(defn -main [& args]
+  (run (parse-count args)))

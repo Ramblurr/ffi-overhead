@@ -66,7 +66,7 @@ nix develop --command -- python3 bench.py \
 | janet | 25942 ms | 25720 ms | 26313 ms | 232.9 ms | 51.84x slower |
 | jolt | 4915 ms | 4498 ms | 5287 ms | 286.1 ms | 9.82x slower |
 | babashka | 30197 ms | 30056 ms | 30907 ms | 262.1 ms | 60.35x slower |
-| clj/panama | 2409 ms | 2253 ms | 2594 ms | 121.9 ms | 4.81x slower |
+| clj/panama | 2290 ms | 2154 ms | 2525 ms | 108.2 ms | 4.58x slower |
 | clj/coffi | 2651 ms | 2600 ms | 2729 ms | 51.6 ms | 5.30x slower |
 
 Ran on an AMD Ryzen 9 7950X3D 16-Core CPU.
