@@ -10,7 +10,7 @@ comparing the c ffi overhead on various programming languages
 
 ![FFI Overhead Benchmark Results for 2026-08](data/2026-08/chart.png)
 
-*Chart shows average execution times across 10 runs. Lower values are better.*
+*Chart shows average execution times across 10 runs on a logarithmic scale. Lower values are better.*
 
 Raw data: [data/2026-08/data.csv](./data/2026-08/data.csv)
 

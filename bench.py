@@ -534,32 +534,40 @@ def create_chart(averages, filename):
     except ImportError:
         return False
 
-    sorted_items = sorted(averages.items(), key=lambda x: x[1])
+    sorted_items = sorted(averages.items(), key=lambda item: item[1])
     languages, times = zip(*sorted_items)
+    positions = range(len(languages))
 
-    fig, ax = plt.subplots(figsize=(12, 8))
-    bars = ax.bar(range(len(languages)), times, color="steelblue", alpha=0.7)
+    fig, ax = plt.subplots(figsize=(10, max(5, len(languages) * 0.25 + 1.5)))
+    ax.scatter(times, positions, color="steelblue", s=32, zorder=3)
 
-    ax.set_xlabel("Programming Languages")
-    ax.set_ylabel("Average Time (milliseconds)")
-    ax.set_title("FFI Overhead Benchmark Results (Lower is Better)")
-    ax.set_xticks(range(len(languages)))
-    ax.set_xticklabels(languages, rotation=45, ha="right")
+    ax.set_xscale("log")
+    ax.set_xlim(min(times) / 1.25, max(times) * 1.5)
+    ax.set_xlabel("Mean time (ms, logarithmic scale)")
+    ax.set_title("FFI Overhead Benchmark Results — Lower is Better")
+    ax.set_yticks(positions, labels=languages)
+    ax.invert_yaxis()
+    ax.grid(axis="x", which="both", linestyle=":", linewidth=0.7, alpha=0.6)
+    ax.set_axisbelow(True)
+    ax.tick_params(axis="y", length=0)
+    for spine in ("top", "right", "left"):
+        ax.spines[spine].set_visible(False)
 
-    for bar, time in zip(bars, times):
-        height = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2.0,
-            height + max(times) * 0.01,
-            f"{time:.0f}ms",
-            ha="center",
-            va="bottom",
-            fontsize=9,
+    for position, time in zip(positions, times):
+        ax.annotate(
+            f"{time:.0f} ms",
+            (time, position),
+            xytext=(6, 0),
+            textcoords="offset points",
+            ha="left",
+            va="center",
+            fontsize=8,
+            bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.2},
         )
 
-    plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches="tight")
-    plt.close()
+    fig.tight_layout()
+    fig.savefig(filename, dpi=300, bbox_inches="tight")
+    plt.close(fig)
     return True
 
 
