@@ -67,8 +67,16 @@ class UpdateCliTest(unittest.TestCase):
     def test_update_cli_preserves_existing_benchmark_rows(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             csv_path = Path(tmpdir) / "data.csv"
+            readme_path = Path(tmpdir) / "README.md"
             csv_path.write_text(
                 "Language,Average Time (ms),All Times (ms)\n" 'alpha,2.00,"1,3"\n'
+            )
+            readme_path.write_text(
+                "Intro\n"
+                "| Benchmark | Mean | Min | Max | Std dev | vs baseline |\n"
+                "|---|---:|---:|---:|---:|---:|\n"
+                "| stale | 0 ms | 0 ms | 0 ms | 0.0 ms | stale |\n"
+                "Outro\n"
             )
             argv = [
                 "bench.py",
@@ -77,6 +85,10 @@ class UpdateCliTest(unittest.TestCase):
                 str(csv_path),
                 "--include",
                 "test",
+                "--baseline",
+                "alpha",
+                "--readme",
+                str(readme_path),
                 "--runs",
                 "1",
                 "--count",
@@ -91,6 +103,15 @@ class UpdateCliTest(unittest.TestCase):
 
             self.assertEqual(
                 {"alpha": [1, 3], "test": [7]}, bench.load_results_csv(csv_path)
+            )
+            self.assertEqual(
+                "Intro\n"
+                "| Benchmark | Mean | Min | Max | CV | vs baseline |\n"
+                "|---|---:|---:|---:|---:|---:|\n"
+                "| alpha | 2 ms | 1 ms | 3 ms | 70.7% | 1.00x (baseline) |\n"
+                "| test | 7 ms | 7 ms | 7 ms | 0.0% | 3.50x slower |\n"
+                "Outro\n",
+                readme_path.read_text(),
             )
 
 

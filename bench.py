@@ -529,6 +529,54 @@ def save_csv(results, averages, filename):
             writer.writerow([lang, f"{averages[lang]:.2f}", times_str])
 
 
+README_TABLE_HEADERS = {
+    "| Benchmark | Mean | Min | Max | Std dev | vs baseline |",
+    "| Benchmark | Mean | Min | Max | CV | vs baseline |",
+}
+
+
+def update_readme_results(results, filename, baseline):
+    if baseline not in results:
+        raise ValueError(f"README baseline is missing from results: {baseline}")
+
+    stats = {name: calculate_stats(times) for name, times in results.items()}
+    baseline_time = stats[baseline]["mean"]
+    order = [baseline] + sorted(
+        (name for name in results if name != baseline),
+        key=lambda name: stats[name]["mean"],
+    )
+
+    table = [
+        "| Benchmark | Mean | Min | Max | CV | vs baseline |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for name in order:
+        benchmark_stats = stats[name]
+        mean = benchmark_stats["mean"]
+        cv = benchmark_stats["stddev"] / mean * 100 if mean else 0
+        comparison = format_comparison(mean, baseline_time, name == baseline)
+        table.append(
+            f"| {name} | {mean:.0f} ms | {benchmark_stats['min']:.0f} ms | "
+            f"{benchmark_stats['max']:.0f} ms | {cv:.1f}% | {comparison} |"
+        )
+
+    path = Path(filename)
+    text = path.read_text()
+    lines = text.splitlines()
+    try:
+        start = next(
+            index for index, line in enumerate(lines) if line in README_TABLE_HEADERS
+        )
+    except StopIteration as error:
+        raise ValueError(f"README benchmark table not found: {filename}") from error
+
+    end = start + 1
+    while end < len(lines) and lines[end].startswith("|"):
+        end += 1
+    lines[start:end] = table
+    path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""))
+
+
 def save_toolchain_report(filename):
     project_dir = Path(__file__).resolve().parent
     result = subprocess.run(
@@ -592,6 +640,9 @@ def main():
     parser.add_argument("--runs", type=int, default=2)
     parser.add_argument("--count", type=int, default=500000000)
     parser.add_argument("--csv", default=None)
+    parser.add_argument(
+        "--readme", help="Update the benchmark results table in this README file"
+    )
     parser.add_argument("--chart", default=None)
     parser.add_argument(
         "--toolchain",
@@ -620,6 +671,8 @@ def main():
         parser.error("--update requires --csv")
     if args.update and not Path(args.csv).is_file():
         parser.error(f"--update CSV does not exist: {args.csv}")
+    if args.readme and (not args.baseline or args.baseline == "first"):
+        parser.error("--readme requires a named --baseline benchmark")
 
     include = set(args.include.split(",")) if args.include else None
     exclude = set(args.exclude.split(",")) if args.exclude else None
@@ -634,10 +687,14 @@ def main():
 
     selected_benchmarks = filter_benchmarks(include, exclude)
     selected_names = {name for name, _ in selected_benchmarks}
+    baseline_in_existing_results = args.update and args.baseline in load_results_csv(
+        args.csv
+    )
     if (
         args.baseline
         and args.baseline != "first"
         and args.baseline not in selected_names
+        and not baseline_in_existing_results
     ):
         parser.error(f"--baseline benchmark is not selected: {args.baseline}")
     results, errors = run_all_benchmarks(
@@ -655,6 +712,8 @@ def main():
     averages = calculate_averages(results)
     if args.csv:
         save_csv(results, averages, args.csv)
+    if args.readme:
+        update_readme_results(results, args.readme, args.baseline)
 
     # Only print simple list format if not in verbose mode
     if not args.verbose:
