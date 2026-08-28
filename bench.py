@@ -528,7 +528,7 @@ def save_csv(results, averages, filename):
             writer.writerow([lang, f"{averages[lang]:.2f}", times_str])
 
 
-def create_chart(averages, filename):
+def create_chart(averages, filename, count, runs):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -543,8 +543,13 @@ def create_chart(averages, filename):
 
     ax.set_xscale("log")
     ax.set_xlim(min(times) / 1.25, max(times) * 1.5)
-    ax.set_xlabel("Mean time (ms, logarithmic scale)")
-    ax.set_title("FFI Overhead Benchmark Results — Lower is Better")
+    ax.set_xlabel(
+        f"Total elapsed time for {count:,} FFI calls (ms, logarithmic scale)"
+    )
+    ax.set_title(
+        "FFI Overhead Benchmark Results — Lower is Better\n"
+        f"Mean across {runs} runs; values are total benchmark time, not latency per call"
+    )
     ax.set_yticks(positions, labels=languages)
     ax.invert_yaxis()
     ax.grid(axis="x", which="both", linestyle=":", linewidth=0.7, alpha=0.6)
@@ -644,7 +649,7 @@ def main():
             print(f"{i:2}. {lang:<25} {avg_time:8.2f} ms")
 
     if args.chart:
-        create_chart(averages, args.chart)
+        create_chart(averages, args.chart, args.count, args.runs)
 
 
 if __name__ == "__main__":
