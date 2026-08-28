@@ -62,6 +62,26 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -std=c++20 -fno-exceptions
 
 : node/*.o newplus/_.a |> $(CXX) -o %o -shared $(OPT_FLAG) -Wl,-soname=%o %f |> newplus.node
 
+# nim
+: hello.nim $(DEPS) |> tmp=\$(mktemp -d); trap 'rm -rf "$tmp"' EXIT; nim c -d:release --parallelBuild:1 --nimcache:"$tmp/nimcache" -o:%o --passL:"$(LINK_FLAGS)" hello.nim |> nim_hello
+
+# zig
+: build.zig hello.zig newplus/plus.c newplus/plus.h |> tmp=\$(mktemp -d); trap 'rm -rf "$tmp"' EXIT; zig build -Doptimize=ReleaseFast --cache-dir "$tmp/cache" --global-cache-dir "$tmp/global-cache" |> zig-out/zig_hello/zig_hello
+
+# OCaml bytecode and native executables share compiler intermediates, so build them in one rule.
+: ocaml/mlplus.c ocaml/plus_ml.ml newplus/plus.o |> cd ocaml && ocamlopt -o test.nat ../newplus/plus.o mlplus.c plus_ml.ml && ocamlc -o test.bc -custom ../newplus/plus.o mlplus.c plus_ml.ml |> ocaml/test.nat ocaml/test.bc ocaml/mlplus.o ocaml/plus_ml.cmi ocaml/plus_ml.cmx ocaml/plus_ml.o ocaml/plus_ml.cmo
+
+# Elixir NIF
+: elixir/plus_one.c newplus/plus.c |> ERLANG_PATH=\$(erl -eval 'io:format("~s", [lists:concat([code:root_dir(), "/erts-", erlang:system_info(version), "/include"])])' -s init stop -noshell); $(CC) -std=c11 $(OPT_FLAG) -Wall -Wextra -Wno-unused-parameter -I"$ERLANG_PATH" -shared -fPIC %f -o %o |> elixir/plus_one.so
+
+# Jolt AOT binary. Build in a temporary tree so Jolt's auxiliary files stay outside Tup's outputs.
+: jolt/ffi_overhead/jolt.jolt | $(DEPS) |> root=\$(pwd); out="$root/%o"; tmp=\$(mktemp -d); trap 'rm -rf "$tmp"' EXIT; ln -s "$root/jolt" "$tmp/jolt"; ln -s "$root/newplus" "$tmp/newplus"; cd "$tmp"; jolt -Sdeps '{:paths ["jolt"]}' build -m ffi-overhead.jolt -o jolt_hello --opt --direct-link; cp jolt_hello "$out" |> jolt_hello
+
+# Clojure AOT jars. Temporary trees keep compiler caches and variable class outputs away from Tup.
+: clojure_panama/hello.clj | $(DEPS) |> root=\$(pwd); out="$root/%o"; tmp=\$(mktemp -d); trap 'rm -rf "$tmp"' EXIT; ln -s "$root/clojure_panama" "$tmp/clojure_panama"; ln -s "$root/newplus" "$tmp/newplus"; mkdir "$tmp/classes"; printf '{}\n' > "$tmp/deps.edn"; cd "$tmp"; clojure -J--enable-native-access=ALL-UNNAMED -Sdeps '{:paths ["." "classes"]}' -M -e '(binding [*compile-path* "classes"] (compile (quote clojure-panama.hello)))'; jar --create --file "$out" -C classes . |> clojure_panama/hello.jar
+
+: clojure_coffi/deps.edn clojure_coffi/ffi_overhead/coffi.clj | $(DEPS) |> root=\$(pwd); out="$root/%o"; tmp=\$(mktemp -d); trap 'rm -rf "$tmp"' EXIT; mkdir -p "$tmp/clojure_coffi/classes"; ln -s "$root/clojure_coffi/deps.edn" "$tmp/clojure_coffi/deps.edn"; ln -s "$root/clojure_coffi/ffi_overhead" "$tmp/clojure_coffi/ffi_overhead"; ln -s "$root/newplus" "$tmp/newplus"; cd "$tmp/clojure_coffi"; clojure -J--enable-native-access=ALL-UNNAMED -M -e '(binding [*compile-path* "classes"] (compile (quote ffi-overhead.coffi)))'; jar --create --file "$out" -C classes . |> clojure_coffi/hello.jar
+
 # wren - disabled, not available in nixpkgs
 # : foreach wren/*.c |> $(CC) -c %f -o %o $(CFLAGS) -I. -Iwren/include |> wren/%B.o
 # LINK_FLAGS += -lm

@@ -17,6 +17,7 @@
 *.app
 
 *.node
+*.jar
 
 /*_hello
 /*_hello.build
