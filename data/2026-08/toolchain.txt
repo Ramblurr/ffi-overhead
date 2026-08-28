@@ -1,7 +1,7 @@
 Current environment:
 ```
-- x86_64 Linux 6.18.45
-- CPU AMD Ryzen 9 7950X3D 16-Core Processor
+- x86_64 Linux 6.12.105-fly
+- CPU AMD EPYC
 # flake inputs
 - nixpkgs git 56c02bc00adcf003215cc4bd996d6efaf4cff188
 - flakelight git 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226

@@ -14,37 +14,37 @@ comparing the c ffi overhead on various programming languages
 
 | Benchmark | Mean | Min | Max | Std dev | vs baseline |
 |---|---:|---:|---:|---:|---:|
-| c/static | 500 ms | 491 ms | 506 ms | 4.9 ms | 1.00x (baseline) |
-| julia | 493 ms | 481 ms | 504 ms | 8.7 ms | 1.02x faster |
-| zig | 496 ms | 494 ms | 499 ms | 1.4 ms | 1.01x faster |
-| rust | 783 ms | 777 ms | 794 ms | 4.8 ms | 1.57x slower |
-| v | 790 ms | 778 ms | 797 ms | 5.9 ms | 1.58x slower |
-| ocamlopt | 883 ms | 880 ms | 886 ms | 2.2 ms | 1.76x slower |
-| d | 884 ms | 872 ms | 912 ms | 15.1 ms | 1.77x slower |
-| c/dynamic | 897 ms | 881 ms | 909 ms | 7.2 ms | 1.79x slower |
-| haskell | 900 ms | 883 ms | 934 ms | 15.0 ms | 1.80x slower |
-| cpp | 902 ms | 893 ms | 920 ms | 8.8 ms | 1.80x slower |
-| d ldc2 | 910 ms | 875 ms | 979 ms | 30.4 ms | 1.82x slower |
-| CL/SBCL | 1217 ms | 1194 ms | 1285 ms | 26.1 ms | 2.43x slower |
-| chez | 1267 ms | 1204 ms | 1605 ms | 123.1 ms | 2.53x slower |
-| java25/panama | 1349 ms | 1289 ms | 1429 ms | 37.7 ms | 2.70x slower |
-| luajit | 1377 ms | 1368 ms | 1384 ms | 4.8 ms | 2.75x slower |
-| java21/panama | 1379 ms | 1244 ms | 1484 ms | 64.3 ms | 2.76x slower |
-| java8/jni | 1484 ms | 1456 ms | 1515 ms | 21.7 ms | 2.97x slower |
-| java21/jni | 1502 ms | 1441 ms | 1554 ms | 39.7 ms | 3.00x slower |
-| java25/jni | 1559 ms | 1480 ms | 1682 ms | 75.9 ms | 3.12x slower |
-| clj/panama | 2073 ms | 1976 ms | 2114 ms | 39.9 ms | 4.14x slower |
-| ocamlc | 2531 ms | 2437 ms | 3158 ms | 221.2 ms | 5.06x slower |
-| jolt | 2664 ms | 2599 ms | 2760 ms | 53.7 ms | 5.32x slower |
-| clj/coffi | 2840 ms | 2704 ms | 3032 ms | 101.3 ms | 5.68x slower |
-| node | 3704 ms | 3623 ms | 3767 ms | 48.5 ms | 7.40x slower |
-| elixir | 8578 ms | 8451 ms | 8840 ms | 108.9 ms | 17.14x slower |
-| go | 9634 ms | 9401 ms | 9868 ms | 161.1 ms | 19.25x slower |
-| csharp mono | 19678 ms | 19502 ms | 20027 ms | 185.3 ms | 39.32x slower |
-| janet | 25942 ms | 25720 ms | 26313 ms | 232.9 ms | 51.84x slower |
-| babashka | 30197 ms | 30056 ms | 30907 ms | 262.1 ms | 60.35x slower |
+| c/static | 890 ms | 841 ms | 1146 ms | 92.9 ms | 1.00x (baseline) |
+| zig | 861 ms | 844 ms | 911 ms | 20.4 ms | 1.03x faster |
+| julia | 874 ms | 847 ms | 902 ms | 19.1 ms | 1.02x faster |
+| rust | 1343 ms | 1333 ms | 1373 ms | 11.3 ms | 1.51x slower |
+| v | 1358 ms | 1341 ms | 1377 ms | 9.3 ms | 1.53x slower |
+| d | 1532 ms | 1509 ms | 1576 ms | 21.3 ms | 1.72x slower |
+| c/dynamic | 1534 ms | 1517 ms | 1568 ms | 17.3 ms | 1.72x slower |
+| d ldc2 | 1539 ms | 1510 ms | 1562 ms | 17.1 ms | 1.73x slower |
+| haskell | 1557 ms | 1506 ms | 1632 ms | 42.4 ms | 1.75x slower |
+| cpp | 1572 ms | 1521 ms | 1692 ms | 48.9 ms | 1.76x slower |
+| ocamlopt | 1714 ms | 1691 ms | 1753 ms | 21.4 ms | 1.92x slower |
+| CL/SBCL | 2034 ms | 1986 ms | 2128 ms | 41.8 ms | 2.28x slower |
+| java21/panama | 2265 ms | 2188 ms | 2316 ms | 36.9 ms | 2.54x slower |
+| chez | 2325 ms | 2257 ms | 2410 ms | 46.3 ms | 2.61x slower |
+| java25/panama | 2447 ms | 2344 ms | 2904 ms | 164.3 ms | 2.75x slower |
+| luajit | 2457 ms | 2442 ms | 2482 ms | 11.4 ms | 2.76x slower |
+| java25/jni | 3091 ms | 3043 ms | 3150 ms | 34.3 ms | 3.47x slower |
+| java8/jni | 3104 ms | 3038 ms | 3292 ms | 78.0 ms | 3.49x slower |
+| java21/jni | 3298 ms | 3218 ms | 3394 ms | 58.7 ms | 3.70x slower |
+| clj/panama | 4454 ms | 4350 ms | 4729 ms | 147.3 ms | 5.00x slower |
+| ocamlc | 4505 ms | 4338 ms | 4863 ms | 160.5 ms | 5.06x slower |
+| clj/coffi | 5111 ms | 4926 ms | 5504 ms | 200.0 ms | 5.74x slower |
+| jolt | 5571 ms | 5209 ms | 5928 ms | 232.7 ms | 6.26x slower |
+| node | 6776 ms | 6664 ms | 6942 ms | 83.9 ms | 7.61x slower |
+| elixir | 16662 ms | 16307 ms | 17405 ms | 356.4 ms | 18.71x slower |
+| go | 17389 ms | 17169 ms | 17662 ms | 180.3 ms | 19.53x slower |
+| csharp mono | 35991 ms | 35685 ms | 36296 ms | 248.9 ms | 40.42x slower |
+| janet | 48456 ms | 47429 ms | 49488 ms | 608.0 ms | 54.41x slower |
+| babashka | 64068 ms | 63115 ms | 65191 ms | 722.0 ms | 71.95x slower |
 
-Ran on an AMD Ryzen 9 7950X3D 16-Core CPU.
+Ran on an AMD EPYC CPU.
 
 Raw data: [data/2026-08/data.csv](./data/2026-08/data.csv)
 
@@ -96,18 +96,24 @@ The Nix environment includes all required compilers, runtimes, and build tools, 
 
 Current environment (Nix) (2026-08):
 ```text
-- x86_64 Linux 6.18.39
-- CPU AMD Ryzen 9 7950X3D 16-Core Processor
+- x86_64 Linux 6.12.105-fly
+- CPU AMD EPYC
+# flake inputs
+- nixpkgs git 56c02bc00adcf003215cc4bd996d6efaf4cff188
+- flakelight git 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226
+- babashka-src git 44bb86e07025391c91dba75c4362e7d6248610b0
+- jolt git e8b018cc162cb61c4573f17213cb329c416bd42d
 - gcc/g++ 15.3.0
 - tup 0.8
 - python 3.14.7 (matplotlib 3.11.1, numpy 2.5.1)
 - zig 0.16.0
+- nim 2.2.10 (disabled - rpath issues)
 - v V 0.5.2
 - java8 1.8.0_504
 - java21 21.0.12
 - java25 25.0.4
 - go 1.26.5
-- rust 1.97.1
+- rust 1.97.1 (8bab26f4f 2026-07-14) (built from a source tarball)
 - dmd 2.112.1
 - ldc2 1.42.0
 - ghc 9.10.3
@@ -119,14 +125,13 @@ Current environment (Nix) (2026-08):
 - luajit 2.1.1774638290
 - julia 1.12.7
 - node 24.19.0
-- elixir 1.18.4 (Erlang/OTP 28)
-- janet 1.41.2-release
-- jolt aafa0fc
-- clojure 1.12.5 (coffi 1.0.615)
-- babashka 1.13.220-SNAPSHOT (libffi 3.8.0, plusone backend trampoline)
-- nim 2.2.10 (disabled - rpath issues)
 - dart 3.13.0 (disabled - deprecated native extensions)
 - wren not available (not in nixpkgs)
+- elixir 1.18.4 (Erlang/OTP 28)
+- janet 1.41.2-release
+- jolt git e8b018c
+- clojure 1.12.5 (coffi 1.0.615)
+- babashka 1.13.220-SNAPSHOT (git 44bb86e07025391c91dba75c4362e7d6248610b0, libffi 3.8.0, plusone backend trampoline)
 ```
 
 ### Run
