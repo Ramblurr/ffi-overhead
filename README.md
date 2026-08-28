@@ -27,16 +27,16 @@ comparing the c ffi overhead on various programming languages
 | d ldc2 | 910 ms | 875 ms | 979 ms | 30.4 ms | 1.82x slower |
 | CL/SBCL | 1217 ms | 1194 ms | 1285 ms | 26.1 ms | 2.43x slower |
 | chez | 1267 ms | 1204 ms | 1605 ms | 123.1 ms | 2.53x slower |
+| java25/panama | 1349 ms | 1289 ms | 1429 ms | 37.7 ms | 2.70x slower |
 | luajit | 1377 ms | 1368 ms | 1384 ms | 4.8 ms | 2.75x slower |
-| java25/panama | 1401 ms | 1378 ms | 1463 ms | 24.6 ms | 2.80x slower |
-| java21/panama | 1434 ms | 1411 ms | 1450 ms | 15.2 ms | 2.87x slower |
-| java8/jni | 1505 ms | 1460 ms | 1672 ms | 66.5 ms | 3.01x slower |
-| java25/jni | 1571 ms | 1536 ms | 1637 ms | 32.7 ms | 3.14x slower |
-| java21/jni | 1592 ms | 1535 ms | 1684 ms | 40.9 ms | 3.18x slower |
-| clj/panama | 2290 ms | 2154 ms | 2525 ms | 108.2 ms | 4.58x slower |
+| java21/panama | 1379 ms | 1244 ms | 1484 ms | 64.3 ms | 2.76x slower |
+| java8/jni | 1484 ms | 1456 ms | 1515 ms | 21.7 ms | 2.97x slower |
+| java21/jni | 1502 ms | 1441 ms | 1554 ms | 39.7 ms | 3.00x slower |
+| java25/jni | 1559 ms | 1480 ms | 1682 ms | 75.9 ms | 3.12x slower |
+| clj/panama | 2073 ms | 1976 ms | 2114 ms | 39.9 ms | 4.14x slower |
 | ocamlc | 2531 ms | 2437 ms | 3158 ms | 221.2 ms | 5.06x slower |
 | jolt | 2664 ms | 2599 ms | 2760 ms | 53.7 ms | 5.32x slower |
-| clj/coffi | 2762 ms | 2628 ms | 2877 ms | 81.0 ms | 5.52x slower |
+| clj/coffi | 2840 ms | 2704 ms | 3032 ms | 101.3 ms | 5.68x slower |
 | node | 3704 ms | 3623 ms | 3767 ms | 48.5 ms | 7.40x slower |
 | elixir | 8578 ms | 8451 ms | 8840 ms | 108.9 ms | 17.14x slower |
 | go | 9634 ms | 9401 ms | 9868 ms | 161.1 ms | 19.25x slower |

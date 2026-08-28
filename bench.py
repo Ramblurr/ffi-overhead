@@ -80,15 +80,16 @@ BENCHMARKS = {
     "jolt": {"exec": ["./jolt_hello"]},
     "babashka": {"exec": ["bb", "hello.bb"]},
     "clj/panama": {
+        "cwd": "clojure_panama",
         "exec": [
             "clojure",
             "-J--enable-native-access=ALL-UNNAMED",
             "-Sdeps",
-            '{:paths ["clojure_panama/hello.jar"]}',
+            '{:paths ["hello.jar"]}',
             "-M",
             "-m",
             "clojure-panama.hello",
-        ]
+        ],
     },
     "clj/coffi": {
         "cwd": "clojure_coffi",

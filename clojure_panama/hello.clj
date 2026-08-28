@@ -1,5 +1,7 @@
 (ns clojure-panama.hello
   (:gen-class)
+  (:require
+   [criterium.core :as crit])
   (:import
    [java.lang.foreign Arena FunctionDescriptor Linker Linker$Option MemoryLayout SymbolLookup ValueLayout]
    [java.lang.invoke MethodHandle MethodHandleProxies]
@@ -11,7 +13,7 @@
 (def ^Linker linker (Linker/nativeLinker))
 (def ^SymbolLookup symbol-lookup
   (SymbolLookup/libraryLookup
-   (.toPath (.getCanonicalFile (java.io.File. "./newplus/libnewplus.so")))
+   (.toPath (.getCanonicalFile (java.io.File. "../newplus/libnewplus.so")))
    (Arena/global)))
 (def linker-options (make-array Linker$Option 0))
 
@@ -53,13 +55,22 @@
       (throw (ex-info "Count must be one positive integer not exceeding 2 billion." {})))
     count))
 
-(defn run [count]
-  (.applyAsInt plusone (unchecked-int (.getAsLong current-timestamp)))
-  (let [start (.getAsLong current-timestamp)]
-    (loop [x 0]
-      (if (< x count)
-        (recur (.applyAsInt plusone (int x)))
-        (println (- (.getAsLong current-timestamp) start))))))
+(defn run-benchmark [count print?]
+  (let [start (.getAsLong current-timestamp)
+        res (do
+              (loop [x 0]
+                (if (< x count)
+                  (recur (.applyAsInt plusone (int x)))
+                  nil))
+              (- (.getAsLong current-timestamp) start))]
+    (when print?
+      (println res))))
+
+(defmacro warmup [expr]
+  `(crit/warmup-for-jit (* 10 crit/s-to-ns) (fn [] ~expr)))
 
 (defn -main [& args]
-  (run (parse-count args)))
+  (let [count (parse-count args)]
+    (crit/force-gc)
+    (warmup (run-benchmark 1000000 false))
+    (run-benchmark count true)))

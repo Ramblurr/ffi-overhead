@@ -1,7 +1,14 @@
 package jhello;
 
+import java.lang.management.CompilationMXBean;
+import java.lang.management.ManagementFactory;
+
 public final class Hello
 {
+    private static final long WARMUP_NANOS = 10_000_000_000L;
+    private static final int WARMUP_COUNT = 1_000_000;
+    private static final int STABLE_JIT_CHECKS = 3;
+
     public static native int plus(int x, int y);
     public static native int plusone(int x);
     public static native long current_timestamp();
@@ -19,14 +26,44 @@ public final class Hello
         System.load(currentDir + "/libjhello.so");
     }
     
-    static void run(int count)
+    static int runLoop(int count)
     {
-        final long start = current_timestamp();
-
         int x = 0;
         while (x < count)
             x = plusone(x);
 
+        return x;
+    }
+
+    static void warmup()
+    {
+        final CompilationMXBean compiler = ManagementFactory.getCompilationMXBean();
+        final long start = System.nanoTime();
+        long loadedClasses = ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount();
+        long compilationTime = compiler.getTotalCompilationTime();
+        int stableChecks = 0;
+
+        do
+        {
+            runLoop(WARMUP_COUNT);
+
+            final long newLoadedClasses = ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount();
+            final long newCompilationTime = compiler.getTotalCompilationTime();
+            if (loadedClasses == newLoadedClasses && compilationTime == newCompilationTime)
+                stableChecks++;
+            else
+                stableChecks = 0;
+
+            loadedClasses = newLoadedClasses;
+            compilationTime = newCompilationTime;
+        }
+        while (System.nanoTime() - start < WARMUP_NANOS || stableChecks < STABLE_JIT_CHECKS);
+    }
+
+    static void run(int count)
+    {
+        final long start = current_timestamp();
+        runLoop(count);
         System.out.println(current_timestamp() - start);
     }
 
@@ -47,7 +84,8 @@ public final class Hello
         
         // load
         loadNative();
-        plusone((int)current_timestamp());
+        System.gc();
+        warmup();
         
         // start
         run(count);
