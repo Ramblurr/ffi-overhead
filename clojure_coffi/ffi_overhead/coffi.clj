@@ -1,6 +1,9 @@
-(require '[criterium.core :as crit])
-(require '[coffi.mem :as mem])
-(require '[coffi.ffi :as ffi :refer [defcfn]])
+(ns ffi-overhead.coffi
+  (:gen-class)
+  (:require
+   [coffi.ffi :as ffi :refer [defcfn]]
+   [coffi.mem :as mem]
+   [criterium.core :as crit]))
 
 (ffi/load-library "../newplus/libnewplus.so")
 
@@ -52,5 +55,3 @@
     (crit/force-gc)
     (warmup (run-benchmark 1000000 false))
     (run-benchmark count true)))
-
-(apply -main *command-line-args*)

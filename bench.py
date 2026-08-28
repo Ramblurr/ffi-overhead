@@ -92,7 +92,15 @@ BENCHMARKS = {
     },
     "clj/coffi": {
         "cwd": "clojure_coffi",
-        "exec": ["clj", "-J--enable-native-access=ALL-UNNAMED", "-M", "hello.clj"],
+        "exec": [
+            "clj",
+            "-J--enable-native-access=ALL-UNNAMED",
+            "-Sdeps",
+            '{:paths ["classes"]}',
+            "-M",
+            "-m",
+            "ffi-overhead.coffi",
+        ],
         "tty_detach": True,
     },
 }
