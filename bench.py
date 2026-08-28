@@ -77,7 +77,7 @@ BENCHMARKS = {
     "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
     "julia": {"exec": ["julia", "hello.jl"]},
     "janet": {"exec": ["janet", "hello.janet"]},
-    "jolt": {"exec": ["jolt", "hello.jolt"]},
+    "jolt": {"exec": ["./jolt_hello"]},
     "babashka": {"exec": ["bb", "hello.bb"]},
     "clj/panama": {
         "exec": [

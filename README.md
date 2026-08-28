@@ -64,7 +64,7 @@ nix develop --command -- python3 bench.py \
 | elixir | 8578 ms | 8451 ms | 8840 ms | 108.9 ms | 17.14x slower |
 | julia | 493 ms | 481 ms | 504 ms | 8.7 ms | 1.02x faster |
 | janet | 25942 ms | 25720 ms | 26313 ms | 232.9 ms | 51.84x slower |
-| jolt | 4915 ms | 4498 ms | 5287 ms | 286.1 ms | 9.82x slower |
+| jolt | 2664 ms | 2599 ms | 2760 ms | 53.7 ms | 5.32x slower |
 | babashka | 30197 ms | 30056 ms | 30907 ms | 262.1 ms | 60.35x slower |
 | clj/panama | 2290 ms | 2154 ms | 2525 ms | 108.2 ms | 4.58x slower |
 | clj/coffi | 2651 ms | 2600 ms | 2729 ms | 51.6 ms | 5.30x slower |

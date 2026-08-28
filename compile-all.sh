@@ -9,6 +9,8 @@ export DART_INCLUDE="$(dirname $(which dart))/../include"
 export NODE_INCLUDE="$(dirname $(which node))/../include/node"
 
 tup upd && \
+    jolt -Sdeps '{:paths ["jolt"]}' build \
+        -m ffi-overhead.jolt -o jolt_hello --opt --direct-link && \
     rm -rf clojure_panama/classes && \
     mkdir -p clojure_panama/classes && \
     clojure -J--enable-native-access=ALL-UNNAMED \

@@ -21,4 +21,5 @@
         (recur (plusone x))
         (println (- (current-timestamp) start))))))
 
-(run (parse-count *command-line-args*))
+(defn -main [& args]
+  (run (parse-count args)))

@@ -19,6 +19,7 @@
 *.node
 
 /*_hello
+/*_hello.build
 
 /nimcache
 /zig-cache
