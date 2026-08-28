@@ -528,6 +528,18 @@ def save_csv(results, averages, filename):
             writer.writerow([lang, f"{averages[lang]:.2f}", times_str])
 
 
+def save_toolchain_report(filename):
+    project_dir = Path(__file__).resolve().parent
+    result = subprocess.run(
+        [project_dir / "check-environment.sh"],
+        cwd=project_dir,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    Path(filename).write_text(result.stdout)
+
+
 def create_chart(averages, filename, count, runs):
     try:
         import matplotlib.pyplot as plt
@@ -543,9 +555,7 @@ def create_chart(averages, filename, count, runs):
 
     ax.set_xscale("log")
     ax.set_xlim(min(times) / 1.25, max(times) * 1.5)
-    ax.set_xlabel(
-        f"Total elapsed time for {count:,} FFI calls (ms, logarithmic scale)"
-    )
+    ax.set_xlabel(f"Total elapsed time for {count:,} FFI calls (ms, logarithmic scale)")
     ax.set_title(
         "FFI Overhead Benchmark Results — Lower is Better\n"
         f"Mean across {runs} runs; values are total benchmark time, not latency per call"
@@ -582,6 +592,10 @@ def main():
     parser.add_argument("--count", type=int, default=500000000)
     parser.add_argument("--csv", default=None)
     parser.add_argument("--chart", default=None)
+    parser.add_argument(
+        "--toolchain",
+        help="Write toolchain versions and build provenance to this file",
+    )
     parser.add_argument(
         "--update",
         action="store_true",
@@ -650,6 +664,9 @@ def main():
 
     if args.chart:
         create_chart(averages, args.chart, args.count, args.runs)
+
+    if args.toolchain:
+        save_toolchain_report(args.toolchain)
 
 
 if __name__ == "__main__":

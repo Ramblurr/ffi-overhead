@@ -17,7 +17,7 @@ with open("flake.lock") as f:
 
 for name in ("nixpkgs", "flakelight", "babashka-src", "jolt"):
     locked = nodes[name]["locked"]
-    print(f"- {name} {locked['rev']}")
+    print(f"- {name} git {locked['rev']}")
 PY
 
 # Build tools
@@ -50,7 +50,7 @@ fi
 
 nim_version=$(nim --version 2>/dev/null | head -1 | cut -d' ' -f4)
 if [ -n "$nim_version" ]; then
-    echo "- nim $nim_version"
+    echo "- nim $nim_version (disabled - rpath issues)"
 else
     echo "- nim not found"
 fi
@@ -177,19 +177,12 @@ else
     echo "- dart not found"
 fi
 
-# nim - currently disabled due to rpath issues
-nim_version=$(nim --version 2>/dev/null | head -1 | cut -d' ' -f4)
-if [ -n "$nim_version" ]; then
-    echo "- nim $nim_version (disabled - rpath issues)"
-else
-    echo "- nim not found"
-fi
-
 # wren - not available in nixpkgs
 echo "- wren not available (not in nixpkgs)"
 
-elixir_version=$(elixir --version 2>/dev/null | tail -1 | cut -d' ' -f2)
-erlang_version=$(elixir --version 2>/dev/null | head -1 | cut -d' ' -f2)
+elixir_output=$(elixir --version 2>/dev/null)
+elixir_version=$(printf '%s\n' "$elixir_output" | sed -n 's/^Elixir \([^ ]*\).*/\1/p')
+erlang_version=$(printf '%s\n' "$elixir_output" | sed -n 's/^Erlang\/OTP \([^ ]*\).*/\1/p')
 if [ -n "$elixir_version" ] && [ -n "$erlang_version" ]; then
     echo "- elixir $elixir_version (Erlang/OTP $erlang_version)"
 else
@@ -203,9 +196,13 @@ else
     echo "- janet not found"
 fi
 
-jolt_version=$(jolt --version 2>/dev/null | sed 's/^jolt //')
-if [ -n "$jolt_version" ]; then
-    echo "- jolt $jolt_version"
+jolt_identifier=$(jolt --version 2>/dev/null | sed 's/^jolt //')
+if [ -n "$jolt_identifier" ]; then
+    if printf '%s\n' "$jolt_identifier" | grep -Eq '^[0-9a-f]{7,40}$'; then
+        echo "- jolt git $jolt_identifier"
+    else
+        echo "- jolt $jolt_identifier"
+    fi
 else
     echo "- jolt not found"
 fi

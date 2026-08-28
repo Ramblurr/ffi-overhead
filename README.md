@@ -32,6 +32,7 @@ nix develop --command -- python3 bench.py \
   --verbose \
   --csv data/2026-08/data.csv \
   --chart data/2026-08/chart.png \
+  --toolchain data/2026-08/toolchain.txt \
   --baseline c/static \
   --runs 10 \
   --count 500000000
@@ -71,9 +72,7 @@ nix develop --command -- python3 bench.py \
 
 Ran on an AMD Ryzen 9 7950X3D 16-Core CPU.
 
-Babashka's fixed `[:int] -> :int` binding uses its compiled `:trampoline` backend. The binary was built from upstream Git with Java FFM support and linked libffi 3.8.0 fallback support.
-
-Dart, Wren, and Nim remain excluded from the published benchmark population.
+Dart, Wren, and Nim are excluded due to toolchain/skill issues on my part.
 
 # Usage
 
@@ -140,8 +139,11 @@ nix develop --command -- python3 bench.py --verbose
 nix develop --command -- python3 bench.py --verbose --runs 5 --count 1000000
 
 # Specify output files
-nix develop --command -- python3 bench.py --verbose --csv my_results.csv --chart my_chart.png
+nix develop --command -- python3 bench.py --verbose --csv my_results.csv --chart my_chart.png --toolchain my_toolchain.txt
 ```
+
+`--toolchain` regenerates the environment report with available tool versions and
+flake-input Git revisions after a successful benchmark run.
 
 ### Update one published benchmark
 
@@ -157,6 +159,7 @@ nix develop --command -- python3 bench.py \
   --count 500000000 \
   --csv data/2026-08/data.csv \
   --chart data/2026-08/chart.png \
+  --toolchain data/2026-08/toolchain.txt \
   --update
 ```
 
