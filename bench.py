@@ -488,6 +488,26 @@ def calculate_averages(results):
     return {lang: statistics.mean(times) for lang, times in results.items()}
 
 
+def load_results_csv(filename):
+    with open(filename, newline="") as f:
+        reader = csv.DictReader(f)
+        expected_header = ["Language", "Average Time (ms)", "All Times (ms)"]
+        if reader.fieldnames != expected_header:
+            raise ValueError(
+                f"unexpected CSV header: expected {','.join(expected_header)}"
+            )
+        return {
+            row["Language"]: [int(value) for value in row["All Times (ms)"].split(",")]
+            for row in reader
+        }
+
+
+def merge_existing_results(filename, new_results):
+    results = load_results_csv(filename)
+    results.update(new_results)
+    return results
+
+
 def save_csv(results, averages, filename):
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f, lineterminator="\n")
@@ -539,6 +559,11 @@ def main():
     parser.add_argument("--csv", default=None)
     parser.add_argument("--chart", default=None)
     parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Merge selected benchmark results into an existing --csv dataset",
+    )
+    parser.add_argument(
         "--include", help="Comma-separated list of languages to include"
     )
     parser.add_argument(
@@ -552,6 +577,10 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.update and not args.csv:
+        parser.error("--update requires --csv")
+    if args.update and not Path(args.csv).is_file():
+        parser.error(f"--update CSV does not exist: {args.csv}")
 
     include = set(args.include.split(",")) if args.include else None
     exclude = set(args.exclude.split(",")) if args.exclude else None
@@ -580,6 +609,9 @@ def main():
     )
     if errors or not results or not complete:
         sys.exit(1)
+
+    if args.update:
+        results = merge_existing_results(args.csv, results)
 
     averages = calculate_averages(results)
     if args.csv:

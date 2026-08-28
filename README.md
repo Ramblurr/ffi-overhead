@@ -142,3 +142,23 @@ nix develop --command -- python3 bench.py --verbose --runs 5 --count 1000000
 # Specify output files
 nix develop --command -- python3 bench.py --verbose --csv my_results.csv --chart my_chart.png
 ```
+
+### Update one published benchmark
+
+Use `--include` with `--update` to replace one benchmark in an existing dataset
+without rerunning the full suite. Other CSV rows are preserved, and the chart is
+regenerated from the merged data.
+
+```sh
+nix develop --command -- python3 bench.py \
+  --verbose \
+  --include zig \
+  --runs 10 \
+  --count 500000000 \
+  --csv data/2026-08/data.csv \
+  --chart data/2026-08/chart.png \
+  --update
+```
+
+`--update` requires an existing `--csv` file so it cannot accidentally publish a
+partial dataset.
