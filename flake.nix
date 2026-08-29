@@ -30,12 +30,13 @@
           version = builtins.replaceStrings [ "\n" ] [ "" ] (
             builtins.readFile "${babashka-src}/resources/BABASHKA_VERSION"
           );
-          libffiStatic = pkgs.libffi.overrideAttrs (old: {
+          libffiStatic = pkgs.libffiReal.overrideAttrs (old: {
             version = "3.8.0";
             src = pkgs.fetchurl {
               url = "https://github.com/libffi/libffi/releases/download/v3.8.0/libffi-3.8.0.tar.gz";
               hash = "sha256-faPi2aFx6woDj1kuytP/K7JVDzSW2Hs7Ka0M9EMMDbQ=";
             };
+            patches = [ ];
             dontDisableStatic = true;
             configureFlags = (old.configureFlags or [ ]) ++ [ "--disable-shared" ];
             doCheck = false;
@@ -59,6 +60,8 @@
               runHook preBuild
               patchShebangs script
               export HOME="$TMPDIR"
+              export LEIN_HOME="$TMPDIR/.lein"
+              export LEIN_JVM_OPTS="''${LEIN_JVM_OPTS:-} -Duser.home=$TMPDIR"
               script/uberjar
               runHook postBuild
             '';
@@ -71,7 +74,11 @@
             '';
             outputHashMode = "recursive";
             outputHashAlgo = "sha256";
-            outputHash = "sha256-wRGMofM1bJBTtjXxm2mLXvvv+y66vZfOTVmat+hLg7E=";
+            outputHash =
+              if pkgs.stdenv.hostPlatform.isDarwin then
+                "sha256-/gvc1/iw4bGzLsrO4JjB7uk1KpQsqihCO3px1V/PF+4="
+              else
+                "sha256-wRGMofM1bJBTtjXxm2mLXvvv+y66vZfOTVmat+hLg7E=";
           };
           unwrapped = pkgs.babashka-unwrapped.overrideAttrs (old: {
             inherit version;
@@ -88,7 +95,12 @@
               "-EBABASHKA_FEATURE_LIBFFI"
               "-EBABASHKA_SHA"
               "--future-defaults=all"
-              "-H:NativeLinkerOption=-Wl,--whole-archive,${libffiStatic}/lib/libffi.a,--no-whole-archive"
+              (
+                if pkgs.stdenv.hostPlatform.isDarwin then
+                  "-H:NativeLinkerOption=-Wl,-force_load,${libffiStatic}/lib/libffi.a"
+                else
+                  "-H:NativeLinkerOption=-Wl,--whole-archive,${libffiStatic}/lib/libffi.a,--no-whole-archive"
+              )
             ];
           });
           wrapped = pkgs.babashka.override {
@@ -117,6 +129,12 @@
         });
     in
     flakelight ./. {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
+
       packages = { system, ... }: {
         babashka-git = _: makeBabashka nixpkgs.legacyPackages.${system};
       };
@@ -138,7 +156,6 @@
             # Build tools
             pkgs.gcc
             pkgs.gnumake
-            pkgs.tup
             pkgs.jet
             # Language compilers and runtimes
             pkgs.nim
@@ -146,7 +163,6 @@
             pkgs.go
             pkgs.rustc
             pkgs.cargo
-            pkgs.dmd
             pkgs.ldc
             pkgs.ghc
             pkgs.chez
@@ -165,6 +181,10 @@
             pkgs.vlang
             pkgs.sbcl
             pkgs.janet
+          ]
+          ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            pkgs.tup
+            pkgs.dmd
           ];
           env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libraries;
           # example pkg config path setting
