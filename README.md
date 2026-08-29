@@ -75,7 +75,8 @@ nix develop --command -- python3 bench.py \
   --count 500000000
 ```
 
-Dart, Wren, and Nim are excluded due to toolchain/skill issues on my part.
+The published results above predate Dart's port to `dart:ffi`. Wren and Nim
+remain excluded due to toolchain/skill issues on my part.
 
 # Usage
 
@@ -128,7 +129,7 @@ Current environment (Nix) (2026-08):
 - luajit 2.1.1774638290
 - julia 1.12.7
 - node 24.19.0
-- dart 3.13.0 (disabled - deprecated native extensions)
+- dart 3.13.0
 - wren not available (not in nixpkgs)
 - elixir 1.18.4 (Erlang/OTP 28)
 - janet 1.41.2-release

@@ -12,10 +12,6 @@ if [ "$2" = "scoped" ]; then
     node hello.js $@ && \
     node hello.js $@
 
-    echo -e "\ndart scoped:"
-    dart hello.dart $@ && \
-    dart hello.dart $@
-
     exit 0
 fi
 
@@ -104,9 +100,9 @@ echo -e "\ngo:"
 ./go_hello $@ && \
 ./go_hello $@
 
-# echo -e "\ndart:"
-# dart hello.dart $@ && \
-# dart hello.dart $@
+echo -e "\ndart:"
+dart hello.dart $@ && \
+dart hello.dart $@
 
 # echo -e "\nwren:"
 # ./wren_hello hello.wren $@ && \

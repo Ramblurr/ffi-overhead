@@ -172,7 +172,7 @@ fi
 
 dart_version=$(dart --version 2>&1 | head -1 | sed 's/Dart SDK version: //' | cut -d' ' -f1)
 if [ -n "$dart_version" ]; then
-    echo "- dart $dart_version (disabled - deprecated native extensions)"
+    echo "- dart $dart_version"
 else
     echo "- dart not found"
 fi
