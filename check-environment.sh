@@ -177,6 +177,13 @@ else
     echo "- dart not found"
 fi
 
+cljd_version=$(sed -n 's/.*:tag "\([^"]*\)".*/\1/p' cljd_ffi/deps.edn)
+if [ -n "$cljd_version" ]; then
+    echo "- clojuredart $cljd_version (Dart JIT/AOT)"
+else
+    echo "- clojuredart version unknown"
+fi
+
 # wren - not available in nixpkgs
 echo "- wren not available (not in nixpkgs)"
 

@@ -104,6 +104,22 @@ echo -e "\ndart:"
 dart hello.dart $@ && \
 dart hello.dart $@
 
+echo -e "\nclojuredart ffi jit:"
+dart run cljd_ffi_nonleaf.dill $@ && \
+dart run cljd_ffi_nonleaf.dill $@
+
+echo -e "\nclojuredart ffi jit leaf:"
+dart run cljd_ffi_leaf.dill $@ && \
+dart run cljd_ffi_leaf.dill $@
+
+echo -e "\nclojuredart ffi aot:"
+./cljd_ffi_nonleaf_hello $@ && \
+./cljd_ffi_nonleaf_hello $@
+
+echo -e "\nclojuredart ffi aot leaf:"
+./cljd_ffi_hello $@ && \
+./cljd_ffi_hello $@
+
 # echo -e "\nwren:"
 # ./wren_hello hello.wren $@ && \
 # ./wren_hello hello.wren $@
@@ -119,4 +135,3 @@ julia hello.jl $@
 echo -e "\njanet:"
 janet hello.janet $@ && \
 janet hello.janet $@
-

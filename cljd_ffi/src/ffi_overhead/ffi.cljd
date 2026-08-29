@@ -1,0 +1,65 @@
+(ns ffi-overhead.ffi
+  (:require ["dart:ffi" :as ffi]
+            ["dart:io" :as io]
+            ["package:path/path.dart" :as path]))
+
+(def ^String library-path
+  (path/join io/Directory.current.path "newplus" "libnewplus.so"))
+
+(def ^ffi/DynamicLibrary dylib
+  (ffi/DynamicLibrary.open library-path))
+
+(def plusone-leaf
+  (-> dylib
+      ffi/DynamicLibraryExtension
+      (. #/(lookupFunction (ffi/Int -> ffi/Int) (int -> int))
+         "plusone" .isLeaf true)))
+
+(def current-timestamp-leaf
+  (-> dylib
+      ffi/DynamicLibraryExtension
+      (. #/(lookupFunction (-> ffi/LongLong) (-> int))
+         "current_timestamp" .isLeaf true)))
+
+(def plusone-nonleaf
+  (-> dylib
+      ffi/DynamicLibraryExtension
+      (. #/(lookupFunction (ffi/Int -> ffi/Int) (int -> int))
+         "plusone" .isLeaf false)))
+
+(def current-timestamp-nonleaf
+  (-> dylib
+      ffi/DynamicLibraryExtension
+      (. #/(lookupFunction (-> ffi/LongLong) (-> int))
+         "current_timestamp" .isLeaf false)))
+
+(defn run-benchmark [count plusone-binding timestamp-binding]
+  (let [^int limit count
+        ^#/(int -> int) plusone-fn plusone-binding
+        ^#/(-> int) timestamp-fn timestamp-binding
+        ^int start (timestamp-fn)]
+    (loop [^int x 0]
+      (when (< x limit)
+        (recur (plusone-fn x))))
+    (println (- (timestamp-fn) start))))
+
+(defn main [^#/(List String) args]
+  (if (empty? args)
+    (println "First arg (0 - 2000000000) is required.")
+    (let [^int count (int/parse (first args))]
+      (if (or (<= count 0) (> count 2000000000))
+        (println "Must be a positive number not exceeding 2 billion.")
+        (do
+          (plusone-leaf (if (zero? (current-timestamp-leaf)) 1 2))
+          (run-benchmark count plusone-leaf current-timestamp-leaf))))))
+
+(defn main-nonleaf [^#/(List String) args]
+  (if (empty? args)
+    (println "First arg (0 - 2000000000) is required.")
+    (let [^int count (int/parse (first args))]
+      (if (or (<= count 0) (> count 2000000000))
+        (println "Must be a positive number not exceeding 2 billion.")
+        (do
+          (plusone-nonleaf (if (zero? (current-timestamp-nonleaf)) 1 2))
+          (run-benchmark
+            count plusone-nonleaf current-timestamp-nonleaf))))))

@@ -1,0 +1,9 @@
+name: cljd_ffi
+description: ClojureDart FFI overhead benchmark.
+version: 1.0.0
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  path: ^1.9.1
