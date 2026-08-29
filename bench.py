@@ -74,6 +74,7 @@ BENCHMARKS = {
     },
     "node": {"exec": ["node", "hello.js"]},
     "go": {"exec": ["./go_hello"]},
+    "dart": {"exec": ["dart", "hello.dart"]},
     "elixir": {"exec": ["elixir", "-r", "hello.ex", "-e", "S.start"]},
     "julia": {"exec": ["julia", "hello.jl"]},
     "janet": {"exec": ["janet", "hello.janet"]},

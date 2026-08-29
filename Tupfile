@@ -39,11 +39,6 @@ NODE_CXX_FLAGS = $(CXXFLAGS) -std=c++20 -fno-exceptions
 # rust
 : hello.rs | $(DEPS) |> rustc -C opt-level=2 -C link-args="$(LINK_FLAGS)" -o %o %f |> rust_hello
 
-# dart
-: foreach dart/*.cpp |> $(CXX) -c %f -o %o $(CXXFLAGS) -DDART_SHARED_LIB -Ivendor/dart/include -I. |> dart/%B.o
-
-: dart/*.o newplus/_.a |> $(CXX) -o %o -shared $(OPT_FLAG) %f |> dart/libnewplus_extension.so
-
 # d
 : hello.d |> dmd -betterC -c %f -odd -O -release |> d/%B.o
 
