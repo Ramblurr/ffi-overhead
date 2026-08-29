@@ -12,10 +12,6 @@ if [ "$2" = "scoped" ]; then
     node hello.js $@ && \
     node hello.js $@
 
-    echo -e "\ndart scoped:"
-    dart hello.dart $@ && \
-    dart hello.dart $@
-
     exit 0
 fi
 
@@ -104,9 +100,25 @@ echo -e "\ngo:"
 ./go_hello $@ && \
 ./go_hello $@
 
-# echo -e "\ndart:"
-# dart hello.dart $@ && \
-# dart hello.dart $@
+echo -e "\ndart:"
+dart hello.dart $@ && \
+dart hello.dart $@
+
+echo -e "\nclojuredart ffi jit:"
+dart run cljd_ffi_nonleaf.dill $@ && \
+dart run cljd_ffi_nonleaf.dill $@
+
+echo -e "\nclojuredart ffi jit leaf:"
+dart run cljd_ffi_leaf.dill $@ && \
+dart run cljd_ffi_leaf.dill $@
+
+echo -e "\nclojuredart ffi aot:"
+./cljd_ffi_nonleaf_hello $@ && \
+./cljd_ffi_nonleaf_hello $@
+
+echo -e "\nclojuredart ffi aot leaf:"
+./cljd_ffi_hello $@ && \
+./cljd_ffi_hello $@
 
 # echo -e "\nwren:"
 # ./wren_hello hello.wren $@ && \
@@ -123,4 +135,3 @@ julia hello.jl $@
 echo -e "\njanet:"
 janet hello.janet $@ && \
 janet hello.janet $@
-

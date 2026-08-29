@@ -172,9 +172,16 @@ fi
 
 dart_version=$(dart --version 2>&1 | head -1 | sed 's/Dart SDK version: //' | cut -d' ' -f1)
 if [ -n "$dart_version" ]; then
-    echo "- dart $dart_version (disabled - deprecated native extensions)"
+    echo "- dart $dart_version"
 else
     echo "- dart not found"
+fi
+
+cljd_version=$(sed -n 's/.*:tag "\([^"]*\)".*/\1/p' cljd_ffi/deps.edn)
+if [ -n "$cljd_version" ]; then
+    echo "- clojuredart $cljd_version (Dart JIT/AOT)"
+else
+    echo "- clojuredart version unknown"
 fi
 
 # wren - not available in nixpkgs
