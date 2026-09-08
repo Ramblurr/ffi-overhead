@@ -6,6 +6,7 @@ import csv
 import statistics
 import sys
 import math
+import json
 import os
 from pathlib import Path
 
@@ -112,8 +113,48 @@ BENCHMARKS = {
 }
 
 
+def validate_babashka_sample(sample, count=None):
+    if (
+        not isinstance(sample, dict)
+        or set(sample) != {"count", "control_ms", "ffi_ms"}
+        or any(type(value) is not int for value in sample.values())
+        or not 0 < sample["count"] <= 2000000000
+        or sample["control_ms"] < 0
+        or sample["ffi_ms"] < 0
+        or (count is not None and sample["count"] != count)
+    ):
+        raise ValueError("expected Babashka count, control_ms and ffi_ms integers")
+    return sample
+
+
+def elapsed_times(samples):
+    return [
+        sample["ffi_ms"] if isinstance(sample, dict) else sample for sample in samples
+    ]
+
+
+def babashka_summary(results):
+    samples = results.get("babashka", [])
+    if not samples or not isinstance(samples[0], dict):
+        return ""
+    count = samples[0]["count"]
+    if any(sample["count"] != count for sample in samples):
+        raise ValueError("Babashka samples must use the same count")
+    ffi = statistics.mean(sample["ffi_ms"] for sample in samples)
+    control = statistics.mean(sample["control_ms"] for sample in samples)
+    delta = statistics.mean(
+        sample["ffi_ms"] - sample["control_ms"] for sample in samples
+    )
+    return (
+        f"Babashka ({count:,} calls, {len(samples)} runs, control first): "
+        f"FFI total {ffi:.2f} ms; control {control:.2f} ms; "
+        f"incremental estimate {delta:.2f} ms ({delta * 1000000 / count:.3f} ns/call)."
+    )
+
+
 def calculate_stats(times):
     """Calculate statistical measures for a list of times."""
+    times = elapsed_times(times)
     if not times:
         return {"mean": 0, "min": 0, "max": 0, "stddev": 0}
 
@@ -284,14 +325,18 @@ def run_benchmark(benchmark_config, count, runs=2, name=""):
                 )
             # Strip all whitespace including newlines
             output = result.stdout.strip()
-            time = int(output)
+            time = (
+                validate_babashka_sample(json.loads(output), count)
+                if name == "babashka"
+                else int(output)
+            )
             times.append(time)
         except subprocess.CalledProcessError as e:
             error_msg = f"Command failed with exit code {e.returncode}"
             errors.append(error_msg)
             continue
         except ValueError as e:
-            error_msg = f"Invalid output - expected integer"
+            error_msg = f"Invalid output - {e}"
             errors.append(error_msg)
             continue
         except FileNotFoundError:
@@ -502,21 +547,47 @@ def run_all_benchmarks(
 
 
 def calculate_averages(results):
-    return {lang: statistics.mean(times) for lang, times in results.items()}
+    return {
+        lang: statistics.mean(elapsed_times(times)) for lang, times in results.items()
+    }
+
+
+BABASHKA_CSV_COLUMNS = [
+    "Babashka samples (JSON)",
+    "Babashka control mean (ms)",
+    "Babashka incremental mean (ms)",
+    "Babashka incremental mean (ns/call)",
+]
 
 
 def load_results_csv(filename):
     with open(filename, newline="") as f:
         reader = csv.DictReader(f)
         expected_header = ["Language", "Average Time (ms)", "All Times (ms)"]
-        if reader.fieldnames != expected_header:
+        if reader.fieldnames not in (
+            expected_header,
+            expected_header + BABASHKA_CSV_COLUMNS,
+        ):
             raise ValueError(
                 f"unexpected CSV header: expected {','.join(expected_header)}"
             )
-        return {
-            row["Language"]: [int(value) for value in row["All Times (ms)"].split(",")]
-            for row in reader
-        }
+        results = {}
+        for row in reader:
+            name = row["Language"]
+            times = [int(value) for value in row["All Times (ms)"].split(",")]
+            paired = row.get("Babashka samples (JSON)")
+            if paired:
+                samples = json.loads(paired)
+                if name != "babashka" or not isinstance(samples, list) or not samples:
+                    raise ValueError("expected non-empty Babashka samples")
+                samples = [validate_babashka_sample(sample) for sample in samples]
+                if elapsed_times(samples) != times:
+                    raise ValueError("Babashka FFI totals disagree with paired samples")
+                babashka_summary({name: samples})
+                results[name] = samples
+            else:
+                results[name] = times
+        return results
 
 
 def merge_existing_results(filename, new_results):
@@ -526,12 +597,34 @@ def merge_existing_results(filename, new_results):
 
 
 def save_csv(results, averages, filename):
+    paired = bool(babashka_summary(results))
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f, lineterminator="\n")
-        writer.writerow(["Language", "Average Time (ms)", "All Times (ms)"])
+        header = ["Language", "Average Time (ms)", "All Times (ms)"]
+        writer.writerow(header + (BABASHKA_CSV_COLUMNS if paired else []))
         for lang in sorted(averages.keys(), key=lambda x: averages[x]):
-            times_str = ",".join(str(t) for t in results[lang])
-            writer.writerow([lang, f"{averages[lang]:.2f}", times_str])
+            times_str = ",".join(str(t) for t in elapsed_times(results[lang]))
+            row = [lang, f"{averages[lang]:.2f}", times_str]
+            if paired:
+                if lang == "babashka":
+                    samples = results[lang]
+                    control = statistics.mean(
+                        sample["control_ms"] for sample in samples
+                    )
+                    delta = statistics.mean(
+                        sample["ffi_ms"] - sample["control_ms"] for sample in samples
+                    )
+                    row.extend(
+                        [
+                            json.dumps(samples),
+                            f"{control:.2f}",
+                            f"{delta:.2f}",
+                            f"{delta * 1000000 / samples[0]['count']:.3f}",
+                        ]
+                    )
+                else:
+                    row.extend([""] * len(BABASHKA_CSV_COLUMNS))
+            writer.writerow(row)
 
 
 README_TABLE_HEADERS = {
@@ -672,6 +765,8 @@ def main():
     )
 
     args = parser.parse_args()
+    if not 0 < args.count <= 2000000000 or args.runs <= 0:
+        parser.error("--count must be 1..2000000000 and --runs must be positive")
     if args.update and not args.csv:
         parser.error("--update requires --csv")
     if args.update and not Path(args.csv).is_file():
@@ -726,6 +821,10 @@ def main():
             sorted(averages.items(), key=lambda x: x[1]), 1
         ):
             print(f"{i:2}. {lang:<25} {avg_time:8.2f} ms")
+
+    summary = babashka_summary(results)
+    if summary:
+        print(summary)
 
     if args.chart:
         create_chart(averages, args.chart, args.count, args.runs)

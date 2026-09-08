@@ -1,0 +1,3 @@
+Language,Average Time (ms),All Times (ms),Babashka samples (JSON),Babashka control mean (ms),Babashka incremental mean (ms),Babashka incremental mean (ns/call)
+c/static,10.00,"10,10,10",,,,
+babashka,357.33,"360,352,360","[{""count"": 10000000, ""control_ms"": 70, ""ffi_ms"": 360}, {""count"": 10000000, ""control_ms"": 51, ""ffi_ms"": 352}, {""count"": 10000000, ""control_ms"": 54, ""ffi_ms"": 360}]",58.33,299.00,29.900

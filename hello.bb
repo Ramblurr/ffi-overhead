@@ -1,6 +1,7 @@
 #!/usr/bin/env bb
 
-(require '[babashka.ffi :as ffi])
+(require '[babashka.ffi :as ffi]
+         '[cheshire.core :as json])
 
 (def library (ffi/load-library "./newplus/libnewplus.so"))
 (def plusone (ffi/cfn library "plusone" [:int] :int))
@@ -9,7 +10,7 @@
 (defn parse-count [args]
   (when-not (= 1 (count args))
     (binding [*out* *err*]
-      (println "First arg (0 - 2000000000) is required."))
+      (println "Exactly one count (1 - 2000000000) is required."))
     (System/exit 1))
   (let [count (try
                 (Long/parseLong (first args))
@@ -21,11 +22,19 @@
       (System/exit 1))
     count))
 
-(defn run [count]
+(defn measure [f inputs]
   (let [start (current-timestamp)]
-    (loop [x 0]
-      (if (< x count)
-        (recur (plusone x))
-        (println (- (current-timestamp) start))))))
+    (run! f inputs)
+    (- (current-timestamp) start)))
 
-(run (parse-count *command-line-args*))
+(defn run [count]
+  (let [inputs     (range count)
+        control    identity
+        foreign    plusone
+        control-ms (measure control inputs)
+        ffi-ms     (measure foreign inputs)]
+    {:count      count
+     :control_ms control-ms
+     :ffi_ms     ffi-ms}))
+
+(println (json/generate-string (run (parse-count *command-line-args*))))
