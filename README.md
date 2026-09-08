@@ -19,8 +19,10 @@ comparing the c ffi overhead on various programming languages
 | c/static | 855 ms | 841 ms | 896 ms | 2.3% | 1.00x (baseline) |
 | zig | 861 ms | 844 ms | 911 ms | 2.4% | 1.01x slower |
 | julia | 874 ms | 847 ms | 902 ms | 2.2% | 1.02x slower |
+| cljd/ffi/aot/leaf | 1232 ms | 1213 ms | 1258 ms | 1.2% | 1.44x slower |
 | rust | 1343 ms | 1333 ms | 1373 ms | 0.8% | 1.57x slower |
 | v | 1358 ms | 1341 ms | 1377 ms | 0.7% | 1.59x slower |
+| cljd/ffi/jit/leaf | 1374 ms | 1348 ms | 1396 ms | 1.2% | 1.61x slower |
 | d | 1532 ms | 1509 ms | 1576 ms | 1.4% | 1.79x slower |
 | c/dynamic | 1534 ms | 1517 ms | 1568 ms | 1.1% | 1.79x slower |
 | d ldc2 | 1539 ms | 1510 ms | 1562 ms | 1.1% | 1.80x slower |
@@ -32,6 +34,8 @@ comparing the c ffi overhead on various programming languages
 | chez | 2325 ms | 2257 ms | 2410 ms | 2.0% | 2.72x slower |
 | java25/panama | 2447 ms | 2344 ms | 2904 ms | 6.7% | 2.86x slower |
 | luajit | 2457 ms | 2442 ms | 2482 ms | 0.5% | 2.87x slower |
+| cljd/ffi/aot | 2588 ms | 2564 ms | 2610 ms | 0.7% | 3.03x slower |
+| cljd/ffi/jit | 2831 ms | 2771 ms | 2903 ms | 1.6% | 3.31x slower |
 | java25/jni | 3091 ms | 3043 ms | 3150 ms | 1.1% | 3.61x slower |
 | java8/jni | 3104 ms | 3038 ms | 3292 ms | 2.5% | 3.63x slower |
 | java21/jni | 3298 ms | 3218 ms | 3394 ms | 1.8% | 3.86x slower |
@@ -46,7 +50,9 @@ comparing the c ffi overhead on various programming languages
 | janet | 48456 ms | 47429 ms | 49488 ms | 1.3% | 56.65x slower |
 | babashka | 64068 ms | 63115 ms | 65191 ms | 1.1% | 74.90x slower |
 
-Ran on an AMD EPYC CPU.
+The original results were run on an AMD EPYC CPU. The four `cljd/ffi/*` rows
+were run separately on an AMD Ryzen 9 7950X3D; their comparisons with the EPYC
+baseline are indicative only.
 
 Raw data: [data/2026-08/data.csv](./data/2026-08/data.csv)
 
@@ -75,9 +81,7 @@ nix develop --command -- python3 bench.py \
   --count 500000000
 ```
 
-The published results above predate the Dart and ClojureDart ports to
-`dart:ffi`. Wren and Nim remain excluded due to toolchain/skill issues on my
-part.
+Wren and Nim remain excluded due to toolchain/skill issues on my part.
 
 # Usage
 
