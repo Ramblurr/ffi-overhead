@@ -5,7 +5,7 @@ Current environment:
 # flake inputs
 - nixpkgs git 56c02bc00adcf003215cc4bd996d6efaf4cff188
 - flakelight git 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226
-- babashka-src git 44bb86e07025391c91dba75c4362e7d6248610b0
+- babashka-src tag v1.13.220 (git b98575c98a0ef4df77775ff25fd7fc7b591b1afd)
 - jolt git e8b018cc162cb61c4573f17213cb329c416bd42d
 - gcc/g++ 15.3.0
 - tup 0.8
@@ -35,5 +35,5 @@ Current environment:
 - janet 1.41.2-release
 - jolt git e8b018c
 - clojure 1.12.5 (coffi 1.0.615)
-- babashka 1.13.220-SNAPSHOT (git 44bb86e07025391c91dba75c4362e7d6248610b0, libffi 3.8.0, plusone backend trampoline)
+- babashka 1.13.220 (git b98575c98a0ef4df77775ff25fd7fc7b591b1afd, libffi 3.8.0, plusone backend trampoline)
 ```

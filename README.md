@@ -46,13 +46,13 @@ comparing the c ffi overhead on various programming languages
 | node | 6776 ms | 6664 ms | 6942 ms | 1.2% | 7.92x slower |
 | elixir | 16662 ms | 16307 ms | 17405 ms | 2.1% | 19.48x slower |
 | go | 17389 ms | 17169 ms | 17662 ms | 1.0% | 20.33x slower |
+| babashka | 27335 ms | 26688 ms | 28313 ms | 2.1% | 31.96x slower |
 | csharp mono | 35991 ms | 35685 ms | 36296 ms | 0.7% | 42.07x slower |
 | janet | 48456 ms | 47429 ms | 49488 ms | 1.3% | 56.65x slower |
-| babashka | 64068 ms | 63115 ms | 65191 ms | 1.1% | 74.90x slower |
 
-The original results were run on an AMD EPYC CPU. The four `cljd/ffi/*` rows
-were run separately on an AMD Ryzen 9 7950X3D; their comparisons with the EPYC
-baseline are indicative only.
+The original results were run on an AMD EPYC CPU. The four `cljd/ffi/*` rows and
+the `babashka` row were run separately on an AMD Ryzen 9 7950X3D. The Babashka
+row uses v1.13.220; comparisons with the EPYC baseline are indicative only.
 
 Raw data: [data/2026-08/data.csv](./data/2026-08/data.csv)
 
@@ -110,7 +110,7 @@ Current environment (Nix) (2026-08):
 # flake inputs
 - nixpkgs git 56c02bc00adcf003215cc4bd996d6efaf4cff188
 - flakelight git 4d9eabe93ff4d73cc195a0e8dec0f3fbac31c226
-- babashka-src git 44bb86e07025391c91dba75c4362e7d6248610b0
+- babashka-src tag v1.13.220 (git b98575c98a0ef4df77775ff25fd7fc7b591b1afd)
 - jolt git e8b018cc162cb61c4573f17213cb329c416bd42d
 - gcc/g++ 15.3.0
 - tup 0.8
@@ -141,7 +141,7 @@ Current environment (Nix) (2026-08):
 - janet 1.41.2-release
 - jolt git e8b018c
 - clojure 1.12.5 (coffi 1.0.615)
-- babashka 1.13.220-SNAPSHOT (git 44bb86e07025391c91dba75c4362e7d6248610b0, libffi 3.8.0, plusone backend trampoline)
+- babashka 1.13.220 (git b98575c98a0ef4df77775ff25fd7fc7b591b1afd, libffi 3.8.0, plusone backend trampoline)
 ```
 
 ### Run
