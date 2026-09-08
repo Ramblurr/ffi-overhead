@@ -3,16 +3,17 @@
     "babashka-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1787777408,
-        "narHash": "sha256-LlDPqQYpYlfO0AIARjCFL6uKq/Vy+jAacr3/SERnOLU=",
-        "ref": "refs/heads/master",
-        "rev": "44bb86e07025391c91dba75c4362e7d6248610b0",
-        "revCount": 4636,
+        "lastModified": 1788172018,
+        "narHash": "sha256-Ow8WVq7r06iL6hjU05IyKZu4SHDVq36Sd/7hgcrCG7k=",
+        "ref": "refs/tags/v1.13.220",
+        "rev": "b98575c98a0ef4df77775ff25fd7fc7b591b1afd",
+        "revCount": 4685,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/babashka/babashka.git"
       },
       "original": {
+        "ref": "refs/tags/v1.13.220",
         "submodules": true,
         "type": "git",
         "url": "https://github.com/babashka/babashka.git"

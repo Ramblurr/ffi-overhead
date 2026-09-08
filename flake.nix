@@ -4,7 +4,7 @@
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
     # TODO remove once babashka with ffi ends up in nixpkgs
     babashka-src = {
-      url = "git+https://github.com/babashka/babashka.git?submodules=1";
+      url = "git+https://github.com/babashka/babashka.git?ref=refs/tags/v1.13.220&submodules=1";
       flake = false;
     };
     jolt = {
@@ -41,51 +41,13 @@
             configureFlags = (old.configureFlags or [ ]) ++ [ "--disable-shared" ];
             doCheck = false;
           });
-          standaloneJar = pkgs.stdenvNoCC.mkDerivation {
-            pname = "babashka-standalone";
-            inherit version;
-            src = babashka-src;
-            nativeBuildInputs = [
-              pkgs.graalvmPackages.graalvm-ce
-              pkgs.git
-              pkgs.leiningen
-            ];
-            env = {
-              GRAALVM_HOME = pkgs.graalvmPackages.graalvm-ce;
-              BABASHKA_LIBFFI = "${libffiStatic}/lib/libffi.a";
-              BABASHKA_FEATURE_LIBFFI = "true";
-            };
-            SOURCE_DATE_EPOCH = babashka-src.lastModified;
-            buildPhase = ''
-              runHook preBuild
-              patchShebangs script
-              export HOME="$TMPDIR"
-              export LEIN_HOME="$TMPDIR/.lein"
-              export LEIN_JVM_OPTS="''${LEIN_JVM_OPTS:-} -Duser.home=$TMPDIR"
-              script/uberjar
-              runHook postBuild
-            '';
-            installPhase = ''
-              runHook preInstall
-              mkdir -p "$out"
-              install -m444 "target/babashka-${version}-standalone.jar" "$out/babashka.jar"
-              install -m444 target/metabom.jar "$out/metabom.jar"
-              runHook postInstall
-            '';
-            outputHashMode = "recursive";
-            outputHashAlgo = "sha256";
-            outputHash =
-              if pkgs.stdenv.hostPlatform.isDarwin then
-                "sha256-/gvc1/iw4bGzLsrO4JjB7uk1KpQsqihCO3px1V/PF+4="
-              else
-                "sha256-wRGMofM1bJBTtjXxm2mLXvvv+y66vZfOTVmat+hLg7E=";
+          standaloneJar = pkgs.fetchurl {
+            url = "https://github.com/babashka/babashka/releases/download/v${version}/babashka-${version}-standalone.jar";
+            hash = "sha256-0fpvbrEJU89mMo9A9IM7kAqiGCdnexrEslGtjt+iBxg=";
           };
           unwrapped = pkgs.babashka-unwrapped.overrideAttrs (old: {
             inherit version;
-            src = "${standaloneJar}/babashka.jar";
-            preBuild = (old.preBuild or "") + ''
-              cp ${standaloneJar}/metabom.jar .
-            '';
+            src = standaloneJar;
             nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ libffiStatic ];
             env = (old.env or { }) // {
               BABASHKA_FEATURE_LIBFFI = "true";
